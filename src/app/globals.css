@@ -1,16 +1,27 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Design tokens — matched exactly to mockup */
+  --color-primary:  #1A56A0;
+  --color-accent:   #1D9E75;
+  --color-alert:    #D85A30;
+  --color-warning:  #E8A817;
+  --color-surface:  #F7F7F7;
+  --color-ink:      #1A1A1A;
+  --color-muted:    #666666;
+  --color-border:   #E5E5E5;
 
-  --color-navy:   #1A56A0;
-  --color-teal:   #1D9E75;
-  --color-coral:  #D85A30;
-  --color-surface: #F7F7F7;
-  --color-text:   #1A1A1A;
-  --color-muted:  #6B7280;
-  --color-border: #E5E7EB;
+  /* Aliases for backwards compat */
+  --color-navy:     #1A56A0;
+  --color-teal:     #1D9E75;
+  --color-coral:    #D85A30;
+  --color-text:     #1A1A1A;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --radius-card: 12px;
+  --radius-lg:   10px;
+  --radius-sm:   8px;
 }
 
 :root {
@@ -23,15 +34,53 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Mobile-first: center the 390px column */
+/* Card borders — 0.5px as per design */
+.card-border       { border: 0.5px solid #E5E5E5; }
+.card-alert-border { border: 0.5px solid #D85A30; }
+.card-warn-border  { border: 0.5px solid #E8A817; }
+.thin-divider      { border-top: 0.5px solid #E5E5E5; }
+
+/* Range slider — matches design exactly */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #E5E5E5;
+  border-radius: 3px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1A56A0;
+  cursor: pointer;
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1A56A0;
+  cursor: pointer;
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* Mobile frame */
 .mobile-frame {
   max-width: 390px;
   margin: 0 auto;
   min-height: 100dvh;
-  background: #fff;
+  background: #F7F7F7;
   position: relative;
 }
