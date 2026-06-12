@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PersoNutri — Mockup</title>
+<style>
+  :root {
+    --navy: #1A56A0;
+    --teal: #1D9E75;
+    --coral: #D85A30;
+    --bg: #F7F7F7;
+    --text: #1A1A1A;
+    --sub: #6B7280;
+    --border: #E5E7EB;
+    --white: #fff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #D1D5DB; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+  #app { width: 390px; max-width: 100vw; background: var(--bg); min-height: 100vh; position: relative; display: flex; flex-direction: column; box-shadow: 0 0 40px rgba(0,0,0,0.15); }
+  .screen { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding-bottom: 68px; }
+  .screen.active { display: flex; }
+  .screen-sessao.active { padding-bottom: 0; }
+
+  /* Header */
+  .header { background: var(--white); padding: 14px 16px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .header-title { font-size: 16px; font-weight: 700; color: var(--text); }
+  .header-back { background: none; border: none; cursor: pointer; color: var(--sub); font-size: 20px; padding: 0 6px; }
+  .header-gear { background: none; border: none; cursor: pointer; color: var(--sub); }
+
+  /* Bottom nav */
+  #bottom-nav { background: var(--white); border-top: 1px solid var(--border); display: flex; position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 390px; max-width: 100vw; z-index: 100; }
+  .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 4px 6px; border: none; background: none; cursor: pointer; border-top: 2px solid transparent; transition: border-color 0.15s; gap: 2px; }
+  .nav-btn.active { border-top-color: var(--navy); }
+  .nav-btn svg { transition: stroke 0.15s; }
+  .nav-btn span { font-size: 10px; font-weight: 500; color: #9CA3AF; transition: color 0.15s; }
+  .nav-btn.active span { color: var(--navy); }
+
+  /* Cards */
+  .card { background: var(--white); border: 0.5px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+  .card-sm { padding: 10px 12px; }
+  .label { font-size: 11px; color: var(--sub); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+  .heading { font-size: 15px; font-weight: 600; color: var(--text); }
+  .subtext { font-size: 13px; color: var(--sub); }
+
+  /* Buttons */
+  .btn { background: var(--navy); color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; }
+  .btn-teal { background: var(--teal); }
+  .btn-white { background: #fff; color: var(--navy); }
+  .btn-block { width: 100%; justify-content: center; padding: 12px; font-size: 15px; }
+  .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 7px; }
+  .btn-outline { background: transparent; color: var(--navy); border: 1.5px solid var(--navy); border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+  /* Progress bars */
+  .bar-track { background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+
+  /* Badge */
+  .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 99px; }
+  .badge-teal { background: #1D9E7522; color: var(--teal); }
+  .badge-navy { background: #1A56A022; color: var(--navy); }
+  .badge-coral { background: #D85A3022; color: var(--coral); }
+  .badge-gray { background: #E5E7EB; color: var(--sub); }
+
+  /* Alert */
+  .alert { border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; display: flex; gap: 10px; }
+  .alert-coral { background: #FFF0EC; border: 1px solid #D85A3040; }
+  .alert-yellow { background: #FFFBEB; border: 1px solid #F59E0B40; }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* Recovery circle */
+  .rc-wrap { position: relative; }
+  .rc-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* Padding */
+  .px { padding-left: 14px; padding-right: 14px; }
+  .py { padding-top: 14px; padding-bottom: 14px; }
+  .p { padding: 14px; }
+
+  /* Range sliders */
+  input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: var(--border); outline: none; cursor: pointer; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+
+  /* Chat bubbles */
+  .bubble-user { background: var(--navy); color: #fff; border-radius: 14px 14px 4px 14px; padding: 10px 12px; font-size: 13px; line-height: 1.6; max-width: 80%; align-self: flex-end; }
+  .bubble-ai { background: #EFF6FF; color: var(--text); border: 1px solid #BFDBFE; border-radius: 14px 14px 14px 4px; padding: 10px 12px; font-size: 13px; line-height: 1.6; max-width: 80%; white-space: pre-wrap; }
+
+  /* Typing dots */
+  @keyframes dot-pulse {
+    0%, 80%, 100% { opacity: 0.3; transform: scale(0.9); }
+    40% { opacity: 1; transform: scale(1.1); }
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--navy); display: inline-block; animation: dot-pulse 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  /* Accordion */
+  .accordion-body { display: none; }
+  .accordion-body.open { display: block; }
+
+  /* Sessions screen */
+  .session-header { background: var(--text); padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+  .session-body { flex: 1; background: var(--bg); border-radius: 16px 16px 0 0; overflow: auto; }
+
+  /* Number stepper */
+  .stepper { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .stepper-btn { flex: 1; background: #F9FAFB; border: none; padding: 8px 0; font-size: 16px; cursor: pointer; color: #374151; font-family: inherit; }
+  .stepper-val { flex: 2; text-align: center; font-size: 15px; font-weight: 700; color: var(--text); }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ═══════════════════════════ DASHBOARD ═══════════════════════════ -->
+<div id="screen-dashboard" class="screen active">
+  <div class="header">
+    <span class="header-title">PersoNutri</span>
+    <button class="header-gear">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+  <div class="p">
+    <!-- Greeting -->
+    <div style="margin-bottom:16px">
+      <h1 style="font-size:20px;font-weight:700">Bom dia, Rafael 👋</h1>
+      <p class="subtext" style="margin-top:2px">Quarta-feira, 11 de junho de 2025</p>
+    </div>
+
+    <!-- Today's workout -->
+    <div style="background:var(--navy);border-radius:14px;padding:16px;margin-bottom:10px">
+      <p style="font-size:11px;color:#93C5FD;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Treino de Hoje</p>
+      <h2 style="font-size:18px;font-weight:700;color:#fff;margin-bottom:4px">Push A</h2>
+      <p style="font-size:13px;color:#BAD4F5;margin-bottom:14px">Peito + Tríceps · 6 exercícios · ~55 min</p>
+      <button class="btn btn-white btn-block" onclick="goTo('sessao')">▶ Iniciar Sessão</button>
+    </div>
+
+    <!-- Metrics grid -->
+    <div class="grid-2" style="margin-bottom:10px">
+      <div class="card card-sm" style="margin-bottom:0">
+        <p class="label" style="margin-bottom:8px">Recuperação</p>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="rc-wrap">
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <circle cx="30" cy="30" r="24" fill="none" stroke="#E5E7EB" stroke-width="7"/>
+              <circle cx="30" cy="30" r="24" fill="none" stroke="#1D9E75" stroke-width="7" stroke-dasharray="105.7 150.8" stroke-linecap="round" transform="rotate(-90 30 30)"/>
+            </svg>
+            <div class="rc-label">
+              <span style="font-size:14px;font-weight:700;color:#1D9E75;line-height:1">7.4</span>
+              <span style="font-size:8px;color:var(--sub)">/10</span>
+            </div>
+          </div>
+          <div>
+            <p style="font-size:12px;color:var(--sub)">Score</p>
+            <p style="font-size:11px;color:var(--teal);font-weight:600">Boa</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-sm" style="margin-bottom:0">
+        <p class="label" style="margin-bottom:6px">Calorias</p>
+        <p style="font-size:22px;font-weight:700;margin-bottom:1px">2.840</p>
+        <p style="font-size:11px;color:var(--sub);margin-bottom:6px">kcal restantes</p>
+        <div class="bar-track"><div class="bar-fill" style="width:30%;background:var(--navy)"></div></div>
+      </div>
+
+      <div class="card card-sm" style="margin-bottom:0">
+        <p class="label" style="margin-bottom:6px">Proteína</p>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <span style="font-size:18px;font-weight:700">89g</span>
+          <span style="font-size:11px;color:var(--sub)">de 176g</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:51%;background:var(--teal)"></div></div>
+        <p style="font-size:10px;color:var(--sub);margin-top:3px">51% da meta</p>
+      </div>
+
+      <div class="card card-sm" style="margin-bottom:0">
+        <p class="label" style="margin-bottom:6px">Sequência</p>
+        <p style="font-size:28px;line-height:1">🔥</p>
+        <p style="font-size:20px;font-weight:700;margin-top:2px">12 dias</p>
+        <p style="font-size:11px;color:var(--teal);font-weight:600;margin-top:1px">Continue assim!</p>
+      </div>
+    </div>
+
+    <!-- Alert plateau -->
+    <div class="alert alert-coral">
+      <span style="font-size:16px;flex-shrink:0">⚠</span>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <p style="font-size:13px;font-weight:600;color:#7C2D12;margin-bottom:2px">Platô detectado</p>
+            <p style="font-size:12px;color:var(--coral)">Supino Reto — sem progressão há 3 semanas</p>
+          </div>
+          <button class="btn btn-sm" style="background:var(--coral);flex-shrink:0;margin-left:8px" onclick="goTo('progresso')">Ver</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <p class="label" style="margin:14px 0 8px">Ações rápidas</p>
+    <div style="display:flex;gap:8px">
+      <button onclick="goTo('checkin')" style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 6px;font-size:12px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit">📋 Check-in</button>
+      <button onclick="goTo('nutricao')" style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 6px;font-size:12px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit">🍽 Refeição</button>
+      <button onclick="goTo('progresso')" style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 6px;font-size:12px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit">📊 Progresso</button>
+    </div>
+
+    <div style="text-align:center;margin-top:20px">
+      <span class="badge badge-teal">🔬 Baseado em evidências científicas</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ TREINO ═══════════════════════════ -->
+<div id="screen-treino" class="screen">
+  <div class="header">
+    <span class="header-title">Treino</span>
+    <button class="header-gear">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+  <div class="p">
+    <h2 style="font-size:17px;font-weight:700;margin-bottom:2px">Meu Plano · Upper/Lower</h2>
+    <p class="subtext" style="margin-bottom:14px">4× por semana · Intermediário</p>
+
+    <!-- Day cards -->
+    <div id="day-seg" class="card" style="display:flex;align-items:center;gap:12px;background:#F0FDF4">
+      <div style="width:38px;height:38px;border-radius:8px;background:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:11px;font-weight:700;color:#fff">Seg</span></div>
+      <div style="flex:1">
+        <p style="font-size:14px;font-weight:700;margin-bottom:1px">Push A</p>
+        <p style="font-size:12px;color:var(--sub)">Peito + Tríceps</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;color:var(--teal)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span style="font-size:11px;font-weight:600;color:var(--teal)">Concluída</span>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;gap:12px;background:#F0FDF4">
+      <div style="width:38px;height:38px;border-radius:8px;background:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:11px;font-weight:700;color:#fff">Ter</span></div>
+      <div style="flex:1">
+        <p style="font-size:14px;font-weight:700;margin-bottom:1px">Pull A</p>
+        <p style="font-size:12px;color:var(--sub)">Costas + Bíceps</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span style="font-size:11px;font-weight:600;color:var(--teal)">Concluída</span>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;gap:12px;border:1.5px solid var(--navy)">
+      <div style="width:38px;height:38px;border-radius:8px;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:11px;font-weight:700;color:#fff">Qua</span></div>
+      <div style="flex:1">
+        <p style="font-size:14px;font-weight:700;margin-bottom:1px">Lower A</p>
+        <p style="font-size:12px;color:var(--sub)">Quadríceps + Panturrilha</p>
+      </div>
+      <button class="btn btn-sm" onclick="goTo('sessao')">Iniciar</button>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;gap:12px;background:#FAFAFA">
+      <div style="width:38px;height:38px;border-radius:8px;background:#E5E7EB;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:11px;font-weight:700;color:var(--sub)">Qui</span></div>
+      <div style="flex:1">
+        <p style="font-size:14px;font-weight:600;color:var(--sub)">Descanso 💤</p>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;gap:12px">
+      <div style="width:38px;height:38px;border-radius:8px;background:#E5E7EB;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:11px;font-weight:700;color:var(--sub)">Sex</span></div>
+      <div style="flex:1">
+        <p style="font-size:14px;font-weight:700;margin-bottom:1px">Pull B</p>
+        <p style="font-size:12px;color:var(--sub)">Costas + Bíceps</p>
+      </div>
+      <span style="font-size:11px;color:var(--sub);font-weight:500">Pendente</span>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;gap:12px">
+      <div style="width:38px;height:38px;border-radius:8px;background:#E5E7EB;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:11px;font-weight:700;color:var(--sub)">Sáb</span></div>
+      <div style="flex:1">
+        <p style="font-size:14px;font-weight:700;margin-bottom:1px">Lower B</p>
+        <p style="font-size:12px;color:var(--sub)">Posterior + Glúteos</p>
+      </div>
+      <span style="font-size:11px;color:var(--sub);font-weight:500">Pendente</span>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;gap:12px;background:#FAFAFA">
+      <div style="width:38px;height:38px;border-radius:8px;background:#E5E7EB;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:11px;font-weight:700;color:var(--sub)">Dom</span></div>
+      <div style="flex:1"><p style="font-size:14px;font-weight:600;color:var(--sub)">Descanso 💤</p></div>
+    </div>
+
+    <div class="card" style="background:#EFF6FF;border-color:#BFDBFE">
+      <p style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:6px">📖 Parâmetros do plano</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px">
+        <div><span style="font-size:11px;color:var(--sub)">Volume: </span><span style="font-size:11px;color:var(--navy);font-weight:600">12–20 séries/músculo</span></div>
+        <div><span style="font-size:11px;color:var(--sub)">Freq.: </span><span style="font-size:11px;color:var(--navy);font-weight:600">2× por grupo muscular</span></div>
+        <div><span style="font-size:11px;color:var(--sub)">RIR: </span><span style="font-size:11px;color:var(--navy);font-weight:600">1–3 reps de reserva</span></div>
+        <div><span style="font-size:11px;color:var(--sub)">Progressão: </span><span style="font-size:11px;color:var(--navy);font-weight:600">Dupla progressão</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ SESSÃO ═══════════════════════════ -->
+<div id="screen-sessao" class="screen screen-sessao" style="flex-direction:column">
+  <!-- Dark header -->
+  <div class="session-header">
+    <button onclick="goTo('treino')" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px 12px;color:#fff;cursor:pointer;font-size:16px;font-family:inherit">←</button>
+    <div style="flex:1">
+      <p style="font-size:11px;color:#9CA3AF;font-weight:500">Push A · Peito + Tríceps</p>
+      <p style="font-size:20px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums" id="sess-timer">00:34:12</p>
+    </div>
+    <div style="background:#D85A3033;border:1px solid var(--coral);border-radius:8px;padding:5px 10px">
+      <p style="font-size:10px;color:var(--coral);font-weight:600">EM ANDAMENTO</p>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="session-body" style="padding:14px;padding-bottom:24px;overflow-y:auto;flex:1">
+    <!-- Exercise card -->
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:10px">
+      <div style="background:var(--navy);padding:12px 14px">
+        <div style="display:flex;gap:6px;margin-bottom:6px">
+          <span class="badge badge-gray" style="font-size:10px">Composto</span>
+          <span class="badge badge-gray" style="font-size:10px">Empurrar Horizontal</span>
+        </div>
+        <p style="font-size:18px;font-weight:700;color:#fff;margin-bottom:4px">Supino Reto com Barra</p>
+        <p style="font-size:12px;color:#BAD4F5">4 séries · 8–12 reps · RIR 1–2</p>
+      </div>
+      <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <p style="font-size:13px;font-weight:600">Série 2 de 4</p>
+          <div style="display:flex;gap:5px">
+            <div style="width:28px;height:6px;border-radius:3px;background:var(--teal)"></div>
+            <div style="width:28px;height:6px;border-radius:3px;background:var(--navy)"></div>
+            <div style="width:28px;height:6px;border-radius:3px;background:var(--border)"></div>
+            <div style="width:28px;height:6px;border-radius:3px;background:var(--border)"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Inputs -->
+      <div style="padding:12px 14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="text-align:center">
+            <p class="label" style="margin-bottom:4px">Carga (kg)</p>
+            <div class="stepper">
+              <button class="stepper-btn" onclick="changeVal('carga',-2.5)">−</button>
+              <span class="stepper-val" id="val-carga">80</span>
+              <button class="stepper-btn" onclick="changeVal('carga',2.5)">+</button>
+            </div>
+          </div>
+          <div style="text-align:center">
+            <p class="label" style="margin-bottom:4px">Reps</p>
+            <div class="stepper">
+              <button class="stepper-btn" onclick="changeVal('reps',-1)">−</button>
+              <span class="stepper-val" id="val-reps">10</span>
+              <button class="stepper-btn" onclick="changeVal('reps',1)">+</button>
+            </div>
+          </div>
+          <div style="text-align:center">
+            <p class="label" style="margin-bottom:4px">RIR</p>
+            <div class="stepper">
+              <button class="stepper-btn" onclick="changeVal('rir',-1)">−</button>
+              <span class="stepper-val" id="val-rir">2</span>
+              <button class="stepper-btn" onclick="changeVal('rir',1)">+</button>
+            </div>
+          </div>
+        </div>
+        <button id="save-btn" class="btn btn-block" style="background:var(--navy)" onclick="saveSerie()">Salvar Série</button>
+      </div>
+    </div>
+
+    <!-- Interval timer -->
+    <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#FFF7ED;border:2px solid #F59E0B;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <span style="font-size:14px;font-weight:700;color:#D97706;font-variant-numeric:tabular-nums" id="interval-timer">1:47</span>
+      </div>
+      <div>
+        <p style="font-size:12px;color:var(--sub);font-weight:500">Intervalo de descanso</p>
+        <p style="font-size:13px;font-weight:600">Próxima série em breve...</p>
+      </div>
+      <div style="margin-left:auto">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+    </div>
+
+    <!-- Previous sets -->
+    <div class="card" style="margin-bottom:10px">
+      <p class="label" style="margin-bottom:8px">Séries anteriores</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid #F3F4F6">
+        <span style="font-size:12px;color:var(--sub)">Série 1</span>
+        <span style="font-size:13px;font-weight:600">80kg × 11 reps · RIR 2</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+    </div>
+
+    <!-- Next exercises -->
+    <div class="card">
+      <p class="label" style="margin-bottom:8px">Próximos exercícios</p>
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid #F3F4F6">
+        <div style="width:22px;height:22px;border-radius:50%;background:#F3F4F6;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:10px;font-weight:700;color:var(--sub)">2</span></div>
+        <span style="font-size:13px">Supino Inclinado com Halteres</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid #F3F4F6">
+        <div style="width:22px;height:22px;border-radius:50%;background:#F3F4F6;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:10px;font-weight:700;color:var(--sub)">3</span></div>
+        <span style="font-size:13px">Crossover no Cabo</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid #F3F4F6">
+        <div style="width:22px;height:22px;border-radius:50%;background:#F3F4F6;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:10px;font-weight:700;color:var(--sub)">4</span></div>
+        <span style="font-size:13px">Tríceps na Corda</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid #F3F4F6">
+        <div style="width:22px;height:22px;border-radius:50%;background:#F3F4F6;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:10px;font-weight:700;color:var(--sub)">5</span></div>
+        <span style="font-size:13px">Tríceps Testa com Barra EZ</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ NUTRIÇÃO ═══════════════════════════ -->
+<div id="screen-nutricao" class="screen">
+  <div class="header">
+    <span class="header-title">Nutrição</span>
+    <button class="header-gear"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+  </div>
+  <div class="p">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+      <h2 style="font-size:17px;font-weight:700">Hoje</h2>
+      <span class="subtext">Sex, 11 Jun</span>
+    </div>
+
+    <!-- Macro cards -->
+    <div class="grid-2" style="margin-bottom:10px">
+      <div class="card card-sm" style="margin-bottom:0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span class="label">Calorias</span><span style="font-size:11px;font-weight:700;color:var(--navy)">1.400 kcal</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:35%;background:var(--navy)"></div></div>
+        <p style="font-size:10px;color:var(--sub);margin-top:3px">meta: 4.040 kcal</p>
+      </div>
+      <div class="card card-sm" style="margin-bottom:0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span class="label">Proteína</span><span style="font-size:11px;font-weight:700;color:var(--teal)">89g</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:51%;background:var(--teal)"></div></div>
+        <p style="font-size:10px;color:var(--sub);margin-top:3px">meta: 176g</p>
+      </div>
+      <div class="card card-sm" style="margin-bottom:0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span class="label">Carb.</span><span style="font-size:11px;font-weight:700;color:#8B5CF6">148g</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:46%;background:#8B5CF6"></div></div>
+        <p style="font-size:10px;color:var(--sub);margin-top:3px">meta: 320g</p>
+      </div>
+      <div class="card card-sm" style="margin-bottom:0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span class="label">Gord.</span><span style="font-size:11px;font-weight:700;color:#F59E0B">38g</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:45%;background:#F59E0B"></div></div>
+        <p style="font-size:10px;color:var(--sub);margin-top:3px">meta: 85g</p>
+      </div>
+    </div>
+
+    <!-- Protein alert -->
+    <div class="alert alert-yellow">
+      <span style="font-size:16px">💡</span>
+      <div>
+        <p style="font-size:13px;font-weight:600;color:#92400E;margin-bottom:2px">Atenção à proteína</p>
+        <p style="font-size:12px;color:#78350F">Você ainda precisa de <strong>87g de proteína</strong> hoje para atingir sua meta.</p>
+      </div>
+    </div>
+
+    <!-- Café -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <button onclick="toggleAccordion('cafe')" style="width:100%;background:none;border:none;cursor:pointer;padding:12px 14px;display:flex;align-items:center;gap:10px;font-family:inherit;text-align:left">
+        <span style="font-size:20px">☀️</span>
+        <div style="flex:1">
+          <p style="font-size:14px;font-weight:600;color:var(--text)">Café da manhã</p>
+          <p style="font-size:12px;color:var(--sub)">3 itens · 620 kcal · 48g prot.</p>
+        </div>
+        <span style="color:var(--sub);font-size:11px;transition:transform .2s" id="arr-cafe">▼</span>
+      </button>
+      <div class="accordion-body open" id="acc-cafe">
+        <div style="border-top:1px solid #F3F4F6;padding:6px 14px 12px">
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F9FAFB">
+            <span style="font-size:13px">Ovos mexidos (3 un.)</span>
+            <div style="text-align:right"><p style="font-size:12px;color:var(--sub)">210 kcal</p><p style="font-size:11px;color:var(--teal);font-weight:600">19g prot.</p></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F9FAFB">
+            <span style="font-size:13px">Whey Protein (30g)</span>
+            <div style="text-align:right"><p style="font-size:12px;color:var(--sub)">120 kcal</p><p style="font-size:11px;color:var(--teal);font-weight:600">24g prot.</p></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F9FAFB">
+            <span style="font-size:13px">Aveia (40g)</span>
+            <div style="text-align:right"><p style="font-size:12px;color:var(--sub)">140 kcal</p><p style="font-size:11px;color:var(--teal);font-weight:600">5g prot.</p></div>
+          </div>
+          <button style="margin-top:8px;width:100%;background:#F0FDF4;border:1px dashed var(--teal);border-radius:8px;padding:8px;font-size:13px;font-weight:600;color:var(--teal);cursor:pointer;font-family:inherit">+ Adicionar item</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Almoço -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <button onclick="toggleAccordion('almoco')" style="width:100%;background:none;border:none;cursor:pointer;padding:12px 14px;display:flex;align-items:center;gap:10px;font-family:inherit;text-align:left">
+        <span style="font-size:20px">🍽️</span>
+        <div style="flex:1">
+          <p style="font-size:14px;font-weight:600;color:var(--text)">Almoço</p>
+          <p style="font-size:12px;color:var(--sub)">2 itens · 780 kcal · 52g prot.</p>
+        </div>
+        <span style="color:var(--sub);font-size:11px" id="arr-almoco">▼</span>
+      </button>
+      <div class="accordion-body" id="acc-almoco">
+        <div style="border-top:1px solid #F3F4F6;padding:6px 14px 12px">
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F9FAFB">
+            <span style="font-size:13px">Frango grelhado (200g)</span>
+            <div style="text-align:right"><p style="font-size:12px;color:var(--sub)">330 kcal</p><p style="font-size:11px;color:var(--teal);font-weight:600">38g prot.</p></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F9FAFB">
+            <span style="font-size:13px">Arroz integral + Feijão</span>
+            <div style="text-align:right"><p style="font-size:12px;color:var(--sub)">450 kcal</p><p style="font-size:11px;color:var(--teal);font-weight:600">14g prot.</p></div>
+          </div>
+          <button style="margin-top:8px;width:100%;background:#F0FDF4;border:1px dashed var(--teal);border-radius:8px;padding:8px;font-size:13px;font-weight:600;color:var(--teal);cursor:pointer;font-family:inherit">+ Adicionar item</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lanche -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <button onclick="toggleAccordion('lanche')" style="width:100%;background:none;border:none;cursor:pointer;padding:12px 14px;display:flex;align-items:center;gap:10px;font-family:inherit;text-align:left">
+        <span style="font-size:20px">🥤</span>
+        <div style="flex:1">
+          <p style="font-size:14px;font-weight:600;color:var(--text)">Lanche</p>
+          <p style="font-size:12px;color:var(--sub)">Vazio</p>
+        </div>
+        <span style="color:var(--sub);font-size:11px" id="arr-lanche">▼</span>
+      </button>
+      <div style="padding:0 14px 12px">
+        <button style="width:100%;background:#F9FAFB;border:1px dashed #D1D5DB;border-radius:8px;padding:8px;font-size:13px;color:var(--sub);cursor:pointer;font-family:inherit">+ Adicionar item</button>
+      </div>
+    </div>
+
+    <!-- Jantar -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <button onclick="toggleAccordion('jantar')" style="width:100%;background:none;border:none;cursor:pointer;padding:12px 14px;display:flex;align-items:center;gap:10px;font-family:inherit;text-align:left">
+        <span style="font-size:20px">🌙</span>
+        <div style="flex:1">
+          <p style="font-size:14px;font-weight:600;color:var(--text)">Jantar</p>
+          <p style="font-size:12px;color:var(--sub)">Vazio</p>
+        </div>
+        <span style="color:var(--sub);font-size:11px" id="arr-jantar">▼</span>
+      </button>
+      <div style="padding:0 14px 12px">
+        <button style="width:100%;background:#F9FAFB;border:1px dashed #D1D5DB;border-radius:8px;padding:8px;font-size:13px;color:var(--sub);cursor:pointer;font-family:inherit">+ Adicionar item</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ CHECK-IN ═══════════════════════════ -->
+<div id="screen-checkin" class="screen">
+  <div class="header">
+    <button class="header-back" onclick="goBack()">←</button>
+    <span class="header-title">Check-in de Hoje</span>
+    <div style="width:28px"></div>
+  </div>
+  <div class="p">
+    <p class="subtext" style="margin-bottom:16px">Quarta-feira, 11 de junho · Como você está se sentindo?</p>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:14px;font-weight:600">Horas de sono</span>
+        <span style="font-size:15px;font-weight:700;color:var(--navy)" id="lbl-sono">7.5h</span>
+      </div>
+      <input type="range" min="3" max="10" step="0.5" value="7.5" style="accent-color:var(--navy)" oninput="updateSlider('sono', this.value, 'h')">
+      <div style="display:flex;justify-content:space-between;margin-top:2px"><span style="font-size:10px;color:var(--sub)">3h</span><span style="font-size:10px;color:var(--sub)">10h</span></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:14px;font-weight:600">Qualidade do sono</span>
+        <span style="font-size:15px;font-weight:700;color:var(--navy)" id="lbl-qual">8/10</span>
+      </div>
+      <input type="range" min="1" max="10" step="1" value="8" style="accent-color:var(--navy)" oninput="updateSlider('qual', this.value, '/10')">
+      <div style="display:flex;justify-content:space-between;margin-top:2px"><span style="font-size:10px;color:var(--sub)">1</span><span style="font-size:10px;color:var(--sub)">10</span></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:14px;font-weight:600">Nível de energia</span>
+        <span style="font-size:15px;font-weight:700;color:var(--teal)" id="lbl-energia">7/10</span>
+      </div>
+      <input type="range" min="1" max="10" step="1" value="7" style="accent-color:var(--teal)" oninput="updateSlider('energia', this.value, '/10')">
+      <div style="display:flex;justify-content:space-between;margin-top:2px"><span style="font-size:10px;color:var(--sub)">1</span><span style="font-size:10px;color:var(--sub)">10</span></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:14px;font-weight:600">Dor muscular (DOMS)</span>
+        <span style="font-size:15px;font-weight:700;color:var(--coral)" id="lbl-dor">4/10</span>
+      </div>
+      <input type="range" min="0" max="10" step="1" value="4" style="accent-color:var(--coral)" oninput="updateSlider('dor', this.value, '/10')">
+      <div style="display:flex;justify-content:space-between;margin-top:2px"><span style="font-size:10px;color:var(--sub)">0</span><span style="font-size:10px;color:var(--sub)">10</span></div>
+    </div>
+
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <p style="font-size:14px;font-weight:600;margin-bottom:2px">Peso hoje (kg)</p>
+        <p style="font-size:12px;color:var(--sub)">Opcional — em jejum</p>
+      </div>
+      <input type="number" value="82.4" step="0.1" style="width:90px;padding:8px 10px;font-size:15px;font-weight:700;border:1.5px solid var(--border);border-radius:8px;text-align:center;color:var(--text);outline:none;font-family:inherit">
+    </div>
+
+    <!-- Score -->
+    <div style="background:#F0FDF8;border:1px solid #1D9E7540;border-radius:14px;padding:16px 14px;margin-bottom:14px;display:flex;align-items:center;gap:16px">
+      <div class="rc-wrap">
+        <svg width="76" height="76" viewBox="0 0 76 76">
+          <circle cx="38" cy="38" r="30" fill="none" stroke="#E5E7EB" stroke-width="8"/>
+          <circle cx="38" cy="38" r="30" fill="none" stroke="#1D9E75" stroke-width="8" stroke-dasharray="147.4 188.5" stroke-linecap="round" transform="rotate(-90 38 38)"/>
+        </svg>
+        <div class="rc-label">
+          <span style="font-size:18px;font-weight:700;color:var(--teal);line-height:1">7.8</span>
+          <span style="font-size:9px;color:var(--sub)">/10</span>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;color:var(--sub);font-weight:500;margin-bottom:4px">Score de recuperação</p>
+        <p style="font-size:20px;font-weight:700;color:var(--teal);margin-bottom:4px">7.8/10</p>
+        <p style="font-size:12px;color:var(--sub)">🟡 Boa — treino normal recomendado</p>
+      </div>
+    </div>
+
+    <button class="btn btn-block btn-teal" id="checkin-btn" onclick="doCheckin()">Registrar Check-in</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ PROGRESSO ═══════════════════════════ -->
+<div id="screen-progresso" class="screen">
+  <div class="header">
+    <span class="header-title">Progresso</span>
+    <button class="header-gear"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+  </div>
+  <div class="p">
+    <!-- Tabs -->
+    <div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px">
+      <button class="prog-tab active" id="ptab-0" onclick="switchProgTab(0)" style="flex-shrink:0;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--navy);background:var(--navy);color:#fff;font-family:inherit">Evolução de Cargas</button>
+      <button class="prog-tab" id="ptab-1" onclick="switchProgTab(1)" style="flex-shrink:0;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--sub);font-family:inherit">Volume Semanal</button>
+      <button class="prog-tab" id="ptab-2" onclick="switchProgTab(2)" style="flex-shrink:0;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--sub);font-family:inherit">Medidas</button>
+      <button class="prog-tab" id="ptab-3" onclick="switchProgTab(3)" style="flex-shrink:0;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--sub);font-family:inherit">Fotos</button>
+    </div>
+
+    <div id="ptab-content-0">
+      <!-- Exercise selector -->
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <p class="label" style="margin-bottom:2px">Exercício</p>
+          <p style="font-size:15px;font-weight:700">Supino Reto com Barra</p>
+        </div>
+        <button style="background:#F3F4F6;border:none;border-radius:8px;padding:6px 10px;font-size:12px;color:var(--sub);cursor:pointer;font-family:inherit">Trocar ▾</button>
+      </div>
+
+      <!-- Chart -->
+      <div class="card" style="padding:14px 10px 10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <p style="font-size:13px;font-weight:600">Carga por sessão (kg)</p>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--navy);display:inline-block"></span>
+            <span style="font-size:10px;color:var(--sub)">Carga</span>
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--coral);border:1.5px solid var(--coral);display:inline-block"></span>
+            <span style="font-size:10px;color:var(--sub)">Platô</span>
+          </div>
+        </div>
+        <svg width="340" height="160" viewBox="0 0 340 160" style="overflow:visible;max-width:100%">
+          <!-- Grid lines -->
+          <line x1="36" y1="12" x2="324" y2="12" stroke="#F3F4F6" stroke-width="1"/>
+          <line x1="36" y1="44.7" x2="324" y2="44.7" stroke="#F3F4F6" stroke-width="1"/>
+          <line x1="36" y1="77.3" x2="324" y2="77.3" stroke="#F3F4F6" stroke-width="1"/>
+          <line x1="36" y1="110" x2="324" y2="110" stroke="#F3F4F6" stroke-width="1"/>
+          <!-- Y labels -->
+          <text x="32" y="16" font-size="9" fill="#9CA3AF" text-anchor="end">85</text>
+          <text x="32" y="48.7" font-size="9" fill="#9CA3AF" text-anchor="end">80</text>
+          <text x="32" y="81.3" font-size="9" fill="#9CA3AF" text-anchor="end">75</text>
+          <text x="32" y="114" font-size="9" fill="#9CA3AF" text-anchor="end">70</text>
+          <!-- Area -->
+          <path d="M 36 110 L 77 94.7 L 118 77.3 L 159 77.3 L 200 60 L 241 44.7 L 282 44.7 L 323 44.7 L 323 130 L 36 130 Z" fill="#1A56A018"/>
+          <!-- Line -->
+          <path d="M 36 110 L 77 94.7 L 118 77.3 L 159 77.3 L 200 60 L 241 44.7 L 282 44.7 L 323 44.7" fill="none" stroke="#1A56A0" stroke-width="2.5" stroke-linejoin="round"/>
+          <!-- Regular points -->
+          <circle cx="36" cy="110" r="4" fill="#1A56A0"/>
+          <circle cx="77" cy="94.7" r="4" fill="#1A56A0"/>
+          <circle cx="118" cy="77.3" r="4" fill="#1A56A0"/>
+          <circle cx="159" cy="77.3" r="4" fill="#1A56A0"/>
+          <circle cx="200" cy="60" r="4" fill="#1A56A0"/>
+          <!-- Plateau points -->
+          <circle cx="241" cy="44.7" r="7" fill="#D85A3033" stroke="#D85A30" stroke-width="1.5"/>
+          <text x="241" y="33" font-size="9" fill="#D85A30" text-anchor="middle">⚠</text>
+          <circle cx="282" cy="44.7" r="7" fill="#D85A3033" stroke="#D85A30" stroke-width="1.5"/>
+          <text x="282" y="33" font-size="9" fill="#D85A30" text-anchor="middle">⚠</text>
+          <circle cx="323" cy="44.7" r="7" fill="#D85A3033" stroke="#D85A30" stroke-width="1.5"/>
+          <!-- X labels -->
+          <text x="36" y="148" font-size="8.5" fill="#9CA3AF" text-anchor="middle">17 Abr</text>
+          <text x="118" y="148" font-size="8.5" fill="#9CA3AF" text-anchor="middle">01 Mai</text>
+          <text x="200" y="148" font-size="8.5" fill="#9CA3AF" text-anchor="middle">15 Mai</text>
+          <text x="282" y="148" font-size="8.5" fill="#9CA3AF" text-anchor="middle">29 Mai</text>
+        </svg>
+      </div>
+
+      <!-- Plateau alert -->
+      <div style="background:#FFF0EC;border:1px solid #D85A3040;border-radius:12px;padding:12px 14px;margin-bottom:10px">
+        <div style="display:flex;gap:8px">
+          <span style="font-size:16px">⚠</span>
+          <div>
+            <p style="font-size:13px;font-weight:700;color:var(--coral);margin-bottom:2px">Platô — 3 semanas sem progressão</p>
+            <p style="font-size:12px;color:#7C2D12;margin-bottom:8px">Sugestão: semana de deload ou mudança de variável (ROM, pausa, método).</p>
+            <button onclick="goTo('ia')" style="background:var(--coral);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Ver recomendação da IA</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <p style="font-size:12px;color:var(--sub);margin-bottom:2px">Última progressão</p>
+          <p style="font-size:14px;font-weight:700">+2,5 kg em 15/05</p>
+        </div>
+        <div style="text-align:right">
+          <p style="font-size:12px;color:var(--sub);margin-bottom:2px">Ganho total</p>
+          <p style="font-size:14px;font-weight:700;color:var(--teal)">+10 kg (8 sem.)</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="ptab-content-1" style="display:none">
+      <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center">
+        <p style="font-size:32px;margin-bottom:10px">📊</p>
+        <p style="font-size:14px;font-weight:600;margin-bottom:4px">Volume Semanal</p>
+        <p style="font-size:13px;color:var(--sub)">Disponível em breve</p>
+      </div>
+    </div>
+    <div id="ptab-content-2" style="display:none">
+      <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center">
+        <p style="font-size:32px;margin-bottom:10px">📏</p>
+        <p style="font-size:14px;font-weight:600;margin-bottom:4px">Medidas Corporais</p>
+        <p style="font-size:13px;color:var(--sub)">Disponível em breve</p>
+      </div>
+    </div>
+    <div id="ptab-content-3" style="display:none">
+      <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center">
+        <p style="font-size:32px;margin-bottom:10px">📸</p>
+        <p style="font-size:14px;font-weight:600;margin-bottom:4px">Fotos de Progresso</p>
+        <p style="font-size:13px;color:var(--sub)">Disponível em breve</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ IA CHAT ═══════════════════════════ -->
+<div id="screen-ia" class="screen" style="display:none;flex-direction:column">
+  <div class="header">
+    <span class="header-title">Consultor HyperApp</span>
+    <span class="badge badge-teal" style="font-size:10px">🔬 Baseado em evidências</span>
+  </div>
+  <!-- Reference bar -->
+  <div style="background:var(--white);padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    <span style="font-size:11px;color:var(--sub)">Schoenfeld · Helms · Israetel · Morton · Witard</span>
+  </div>
+
+  <!-- Messages -->
+  <div id="chat-messages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;padding-bottom:130px">
+    <div style="align-self:flex-end"><div class="bubble-user">Por que não estou progredindo no supino?</div></div>
+
+    <div style="display:flex;gap:8px;align-items:flex-end">
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2" ry="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>
+      </div>
+      <div style="max-width:80%">
+        <div class="bubble-ai">Com base no seu histórico das últimas 3 semanas, identifiquei que o RIR percebido está acima do prescrito — você registrou RIR 3–4 quando o alvo é RIR 1–2. Isso indica <strong>fadiga acumulada</strong>, não falta de força real.
+
+Uma semana de deload — reduzindo 40–50% do volume com manutenção da intensidade — tende a restaurar a capacidade de esforço e retomar a progressão.</div>
+        <div style="display:flex;gap:4px;align-items:center;margin-top:4px">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <span style="font-size:10px;color:var(--teal);font-weight:500">Schoenfeld et al. (2019) · Helms et al. (2018)</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="align-self:flex-end"><div class="bubble-user">Quanto tempo de deload você recomenda?</div></div>
+
+    <div style="display:flex;gap:8px;align-items:flex-end">
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2" ry="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>
+      </div>
+      <div style="max-width:80%">
+        <div class="bubble-ai">Para o seu perfil (intermediário, 12 dias consecutivos, score de recuperação 7.4/10), recomendo <strong>1 semana de deload</strong> com:
+
+• Volume: reduzir de 16 → 8 séries/músculo
+• Intensidade: manter os mesmos pesos
+• Frequência: manter 4×/semana
+
+Após o deload, retome com carga aumentada em 2,5 kg no supino.</div>
+        <div style="display:flex;gap:4px;align-items:center;margin-top:4px">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <span style="font-size:10px;color:var(--teal);font-weight:500">Israetel et al. (2019) — Renascimento Periódico</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat input — fixed -->
+  <div id="chat-input-bar" style="position:fixed;bottom:68px;left:50%;transform:translateX(-50%);width:390px;max-width:100vw;background:var(--white);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;z-index:50">
+    <input id="chat-input" type="text" placeholder="Digite sua dúvida..." style="flex:1;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--text);outline:none;background:#F9FAFB;font-family:inherit">
+    <button onclick="sendChat()" style="background:var(--navy);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:inherit">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ BOTTOM NAV ═══════════════════════════ -->
+<nav id="bottom-nav">
+  <button class="nav-btn active" id="nav-dashboard" onclick="goTo('dashboard')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" id="nav-icon-dashboard"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Dashboard</span>
+  </button>
+  <button class="nav-btn" id="nav-treino" onclick="goTo('treino')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" id="nav-icon-treino"><line x1="6" y1="5" x2="6" y2="19"/><line x1="18" y1="5" x2="18" y2="19"/><line x1="2" y1="9" x2="6" y2="9"/><line x1="2" y1="15" x2="6" y2="15"/><line x1="18" y1="9" x2="22" y2="9"/><line x1="18" y1="15" x2="22" y2="15"/><line x1="6" y1="12" x2="18" y2="12"/></svg>
+    <span>Treino</span>
+  </button>
+  <button class="nav-btn" id="nav-nutricao" onclick="goTo('nutricao')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" id="nav-icon-nutricao"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+    <span>Nutrição</span>
+  </button>
+  <button class="nav-btn" id="nav-progresso" onclick="goTo('progresso')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" id="nav-icon-progresso"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    <span>Progresso</span>
+  </button>
+  <button class="nav-btn" id="nav-ia" onclick="goTo('ia')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" id="nav-icon-ia"><rect x="3" y="11" width="18" height="10" rx="2" ry="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8.01" y2="16" stroke-width="3" stroke-linecap="round"/><line x1="16" y1="16" x2="16.01" y2="16" stroke-width="3" stroke-linecap="round"/></svg>
+    <span>IA</span>
+  </button>
+</nav>
+
+</div>
+
+<script>
+const NAV_SCREENS = ['dashboard','treino','nutricao','progresso','ia'];
+let currentScreen = 'dashboard';
+let prevScreen = 'dashboard';
+const vals = { carga: 80, reps: 10, rir: 2 };
+
+function goTo(name) {
+  // hide all
+  document.querySelectorAll('.screen').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
+
+  const el = document.getElementById('screen-' + name);
+  if (!el) return;
+
+  if (name === 'sessao' || name === 'checkin') {
+    prevScreen = currentScreen;
+  }
+  currentScreen = name;
+
+  el.style.display = 'flex';
+  el.classList.add('active');
+
+  const nav = document.getElementById('bottom-nav');
+  const chatBar = document.getElementById('chat-input-bar');
+
+  if (name === 'sessao') {
+    nav.style.display = 'none';
+    if (chatBar) chatBar.style.display = 'none';
+  } else {
+    nav.style.display = 'flex';
+    if (chatBar) chatBar.style.display = name === 'ia' ? 'flex' : 'none';
+    updateNav(NAV_SCREENS.includes(name) ? name : prevScreen);
+  }
+
+  // scroll to top
+  el.scrollTop = 0;
+}
+
+function updateNav(active) {
+  NAV_SCREENS.forEach(id => {
+    const btn = document.getElementById('nav-' + id);
+    const icon = document.getElementById('nav-icon-' + id);
+    if (!btn || !icon) return;
+    const isActive = id === active;
+    btn.classList.toggle('active', isActive);
+    icon.setAttribute('stroke', isActive ? '#1A56A0' : '#9CA3AF');
+    btn.querySelector('span').style.color = isActive ? '#1A56A0' : '#9CA3AF';
+  });
+}
+
+function goBack() {
+  goTo(prevScreen || 'dashboard');
+}
+
+function changeVal(key, delta) {
+  vals[key] = Math.max(0, vals[key] + delta);
+  document.getElementById('val-' + key).textContent = vals[key];
+}
+
+function saveSerie() {
+  const btn = document.getElementById('save-btn');
+  btn.textContent = '✓ Série Salva!';
+  btn.style.background = '#1D9E75';
+  setTimeout(() => {
+    btn.textContent = 'Salvar Série';
+    btn.style.background = '#1A56A0';
+  }, 1500);
+}
+
+function toggleAccordion(name) {
+  const body = document.getElementById('acc-' + name);
+  const arr = document.getElementById('arr-' + name);
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if (arr) arr.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+function updateSlider(key, val, suffix) {
+  document.getElementById('lbl-' + key).textContent = val + suffix;
+}
+
+function doCheckin() {
+  const btn = document.getElementById('checkin-btn');
+  btn.textContent = '✓ Check-in Registrado!';
+  setTimeout(() => { goBack(); btn.textContent = 'Registrar Check-in'; }, 1200);
+}
+
+function switchProgTab(idx) {
+  for (let i = 0; i < 4; i++) {
+    const tab = document.getElementById('ptab-' + i);
+    const content = document.getElementById('ptab-content-' + i);
+    const isActive = i === idx;
+    tab.style.background = isActive ? 'var(--navy)' : '#fff';
+    tab.style.color = isActive ? '#fff' : 'var(--sub)';
+    tab.style.borderColor = isActive ? 'var(--navy)' : 'var(--border)';
+    if (content) content.style.display = isActive ? 'block' : 'none';
+  }
+}
+
+const AI_REPLIES = [
+  "Com base no seu histórico nutricional, você está atingindo em média <strong>68% da meta proteica</strong>. Distribua proteína em 4–5 refeições com 35–45g cada para maximizar a síntese proteica. Priorize leucina ≥3g por refeição.",
+  "O intervalo de descanso ideal para exercícios compostos de hipertrofia é <strong>2–3 minutos</strong>. Intervalos mais curtos (<90s) comprometem o volume de trabalho e a performance, reduzindo o estímulo hipertrófico.",
+  "Para o seu nível (intermediário, ~2 anos), o volume efetivo está entre <strong>12–20 séries semanais</strong> por grupo muscular. Você está com 16 séries para peito — dentro do range ótimo."
+];
+let aiIdx = 0;
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const messages = document.getElementById('chat-messages');
+
+  // User message
+  const userDiv = document.createElement('div');
+  userDiv.style.cssText = 'align-self:flex-end';
+  userDiv.innerHTML = `<div class="bubble-user">${text}</div>`;
+  messages.appendChild(userDiv);
+  input.value = '';
+
+  // Typing indicator
+  const typingDiv = document.createElement('div');
+  typingDiv.style.cssText = 'display:flex;gap:8px;align-items:flex-end';
+  typingDiv.innerHTML = `
+    <div style="width:30px;height:30px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>
+    </div>
+    <div class="bubble-ai" style="display:flex;gap:5px;align-items:center"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  messages.appendChild(typingDiv);
+  messages.scrollTop = messages.scrollHeight;
+
+  setTimeout(() => {
+    typingDiv.remove();
+    const reply = AI_REPLIES[aiIdx % AI_REPLIES.length];
+    aiIdx++;
+    const aiDiv = document.createElement('div');
+    aiDiv.style.cssText = 'display:flex;gap:8px;align-items:flex-end';
+    aiDiv.innerHTML = `
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>
+      </div>
+      <div style="max-width:80%">
+        <div class="bubble-ai">${reply}</div>
+        <div style="display:flex;gap:4px;align-items:center;margin-top:4px">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <span style="font-size:10px;color:var(--teal);font-weight:500">Baseado em evidências científicas</span>
+        </div>
+      </div>`;
+    messages.appendChild(aiDiv);
+    messages.scrollTop = messages.scrollHeight;
+  }, 1000);
+}
+
+// Enter to send chat
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendChat();
+});
+
+// Init: show dashboard
+goTo('dashboard');
+</script>
+</body>
+</html>

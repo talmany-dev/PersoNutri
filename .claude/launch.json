@@ -1,0 +1,1 @@
+{"version":"0.0.1","configurations":[{"name":"personutri","runtimeExecutable":"npm","runtimeArgs":["run","dev","--prefix","personutri"],"port":3000,"autoPort":true}]}

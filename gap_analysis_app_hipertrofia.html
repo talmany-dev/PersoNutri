@@ -1,0 +1,372 @@
+
+<h2 class="sr-only">Análise de lacunas entre os documentos existentes e um app completo de nutrição e treino para hipertrofia</h2>
+
+<style>
+  .gap-root { font-family: var(--font-sans); padding: 0.5rem 0 2rem; }
+  .gap-tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .gap-tab { font-size: 13px; padding: 6px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all .15s; }
+  .gap-tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+  .gap-tab:hover:not(.active) { background: var(--color-background-secondary); }
+  .gap-section { display: none; }
+  .gap-section.visible { display: block; }
+
+  .legend { display: flex; gap: 16px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-secondary); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-ok   { background: #1D9E75; }
+  .dot-par  { background: #BA7517; }
+  .dot-gap  { background: #D85A30; }
+
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
+  .mod-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); background: var(--color-background-primary); overflow: hidden; }
+  .mod-header { padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+  .mod-icon { width: 32px; height: 32px; border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
+  .mod-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .mod-body { padding: 0 14px 12px; }
+  .feat-row { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-top: 0.5px solid var(--color-border-tertiary); }
+  .feat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .feat-text { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .feat-src { font-size: 10px; color: var(--color-text-tertiary); margin-top: 2px; }
+
+  .priority-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .pri-card { border-radius: var(--border-radius-lg); padding: 14px; }
+  .pri-label { font-size: 11px; font-weight: 500; margin-bottom: 6px; }
+  .pri-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .pri-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+
+  .stack-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .stack-table th { text-align: left; padding: 8px 10px; background: var(--color-background-secondary); color: var(--color-text-secondary); font-weight: 500; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .stack-table td { padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: top; }
+  .stack-table tr:last-child td { border-bottom: none; }
+  .badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+  .badge-ok   { background: #E1F5EE; color: #0F6E56; }
+  .badge-par  { background: #FAEEDA; color: #854F0B; }
+  .badge-gap  { background: #FAECE7; color: #712B13; }
+  .badge-core { background: #EEEDFE; color: #3C3489; }
+</style>
+
+<div class="gap-root">
+  <div class="gap-tabs">
+    <button class="gap-tab active" onclick="showGap('cobertura')">Cobertura atual</button>
+    <button class="gap-tab" onclick="showGap('lacunas')">Lacunas críticas</button>
+    <button class="gap-tab" onclick="showGap('blueprint')">Blueprint do app</button>
+    <button class="gap-tab" onclick="showGap('stack')">Stack & prioridade</button>
+  </div>
+
+  <!-- ABA 1: COBERTURA ATUAL -->
+  <div id="tab-cobertura" class="gap-section visible">
+    <div class="legend">
+      <div class="legend-item"><div class="dot dot-ok"></div> Coberto pelos documentos</div>
+      <div class="legend-item"><div class="dot dot-par"></div> Parcialmente coberto</div>
+      <div class="legend-item"><div class="dot dot-gap"></div> Lacuna — não existe ainda</div>
+    </div>
+
+    <div class="module-grid">
+
+      <div class="mod-card">
+        <div class="mod-header">
+          <div class="mod-icon" style="background:#E1F5EE;color:#0F6E56"><i class="ti ti-barbell" aria-hidden="true"></i></div>
+          <div class="mod-title">Treino</div>
+        </div>
+        <div class="mod-body">
+          <div class="feat-row"><div class="feat-dot" style="background:#1D9E75"></div><div><div class="feat-text">Parâmetros científicos de volume, frequência, RIR, ROM</div><div class="feat-src">Doc 1 + Doc 3</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#1D9E75"></div><div><div class="feat-text">Diagnóstico de perfil e nível de treinamento</div><div class="feat-src">Doc 2 + Doc 3</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#1D9E75"></div><div><div class="feat-text">Matriz de recomendações por nível</div><div class="feat-src">Doc 3</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#1D9E75"></div><div><div class="feat-text">Proposta de split semanal estruturado</div><div class="feat-src">Doc 3</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#BA7517"></div><div><div class="feat-text">Banco de exercícios por grupo muscular</div><div class="feat-src">Referenciado, não listado</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Geração automática de treino (IA)</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Registro e progressão de cargas em tempo real</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Periodização automática e deload inteligente</div><div class="feat-src">Ausente</div></div></div>
+        </div>
+      </div>
+
+      <div class="mod-card">
+        <div class="mod-header">
+          <div class="mod-icon" style="background:#FAECE7;color:#712B13"><i class="ti ti-egg" aria-hidden="true"></i></div>
+          <div class="mod-title">Nutrição</div>
+        </div>
+        <div class="mod-body">
+          <div class="feat-row"><div class="feat-dot" style="background:#1D9E75"></div><div><div class="feat-text">Diretrizes de proteína (1,6–2,2 g/kg) com embasamento</div><div class="feat-src">Doc 1</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#1D9E75"></div><div><div class="feat-text">Diagnóstico de ingestão proteica atual</div><div class="feat-src">Doc 2</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#BA7517"></div><div><div class="feat-text">Recomendação de calorias totais e macros</div><div class="feat-src">Mencionado superficialmente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Cálculo de TDEE e metas calóricas individualizadas</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Plano alimentar gerado por IA</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Diário alimentar e tracking de macros</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Banco de alimentos com densidades proteicas</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Ajuste automático de macros por fase (bulk/cut/maint)</div><div class="feat-src">Ausente</div></div></div>
+        </div>
+      </div>
+
+      <div class="mod-card">
+        <div class="mod-header">
+          <div class="mod-icon" style="background:#E6F1FB;color:#0C447C"><i class="ti ti-flask" aria-hidden="true"></i></div>
+          <div class="mod-title">Suplementação</div>
+        </div>
+        <div class="mod-body">
+          <div class="feat-row"><div class="feat-dot" style="background:#1D9E75"></div><div><div class="feat-text">Ranking de suplementos por evidência científica</div><div class="feat-src">Doc 1</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#1D9E75"></div><div><div class="feat-text">Diagnóstico do uso atual de suplementos</div><div class="feat-src">Doc 2</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Recomendação personalizada por perfil e orçamento</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Protocolos de uso (dosagem, timing, ciclagem)</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Rastreamento de uso e aderência</div><div class="feat-src">Ausente</div></div></div>
+        </div>
+      </div>
+
+      <div class="mod-card">
+        <div class="mod-header">
+          <div class="mod-icon" style="background:#FAEEDA;color:#633806"><i class="ti ti-moon" aria-hidden="true"></i></div>
+          <div class="mod-title">Recuperação</div>
+        </div>
+        <div class="mod-body">
+          <div class="feat-row"><div class="feat-dot" style="background:#1D9E75"></div><div><div class="feat-text">Evidências sobre sono, deload e crioterapia</div><div class="feat-src">Doc 1</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#1D9E75"></div><div><div class="feat-text">Diagnóstico de qualidade de sono e estresse</div><div class="feat-src">Doc 2</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Monitoramento de qualidade de sono integrado</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Score de recuperação diário (HRV / percepção)</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Deload automático baseado em fadiga acumulada</div><div class="feat-src">Ausente</div></div></div>
+        </div>
+      </div>
+
+      <div class="mod-card">
+        <div class="mod-header">
+          <div class="mod-icon" style="background:#EAF3DE;color:#27500A"><i class="ti ti-chart-line" aria-hidden="true"></i></div>
+          <div class="mod-title">Progresso & Analytics</div>
+        </div>
+        <div class="mod-body">
+          <div class="feat-row"><div class="feat-dot" style="background:#BA7517"></div><div><div class="feat-text">Ficha de pontuação de pilares (estática)</div><div class="feat-src">Doc 2</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Dashboard de evolução de cargas ao longo do tempo</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Medidas corporais e fotos de progresso</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Gráficos de volume semanal por grupo muscular</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Detecção automática de platô e ajuste de variáveis</div><div class="feat-src">Ausente</div></div></div>
+        </div>
+      </div>
+
+      <div class="mod-card">
+        <div class="mod-header">
+          <div class="mod-icon" style="background:#EEEDFE;color:#3C3489"><i class="ti ti-robot" aria-hidden="true"></i></div>
+          <div class="mod-title">IA & Personalização</div>
+        </div>
+        <div class="mod-body">
+          <div class="feat-row"><div class="feat-dot" style="background:#1D9E75"></div><div><div class="feat-text">Base de conhecimento científico estruturada</div><div class="feat-src">Doc 1</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#1D9E75"></div><div><div class="feat-text">Protocolo de anamnese para coleta de dados</div><div class="feat-src">Doc 2 + Doc 3</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Motor de IA para geração de treinos personalizados</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">IA para geração de planos alimentares</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Chat de consultoria em tempo real (perguntas/dúvidas)</div><div class="feat-src">Ausente</div></div></div>
+          <div class="feat-row"><div class="feat-dot" style="background:#D85A30"></div><div><div class="feat-text">Ajuste dinâmico de treino e dieta por feedbacks</div><div class="feat-src">Ausente</div></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ABA 2: LACUNAS CRÍTICAS -->
+  <div id="tab-lacunas" class="gap-section">
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 1.25rem">Ordenadas por impacto no produto final. As 3 primeiras bloqueiam o funcionamento mínimo do app.</p>
+
+    <div class="priority-grid">
+      <div class="pri-card" style="background:#FAECE7;border:0.5px solid #F0997B">
+        <div class="pri-label" style="color:#993C1D">🔴 Bloqueante</div>
+        <div class="pri-title">Motor de cálculo nutricional</div>
+        <div class="pri-desc">TDEE, TMB (Harris-Benedict / Mifflin), macros por objetivo e fase. Sem isso o app não pode dar nenhuma recomendação alimentar concreta.</div>
+      </div>
+      <div class="pri-card" style="background:#FAECE7;border:0.5px solid #F0997B">
+        <div class="pri-label" style="color:#993C1D">🔴 Bloqueante</div>
+        <div class="pri-title">Banco de exercícios</div>
+        <div class="pri-desc">Catálogo com grupo muscular, padrão de movimento (empurrar/puxar/agachar/dobrar/carregar), equipamento necessário, nível e variantes. Fundação para geração de treinos.</div>
+      </div>
+      <div class="pri-card" style="background:#FAECE7;border:0.5px solid #F0997B">
+        <div class="pri-label" style="color:#993C1D">🔴 Bloqueante</div>
+        <div class="pri-title">Motor de geração de treino</div>
+        <div class="pri-desc">Algoritmo ou prompt de IA que, dado o perfil do usuário, gera séries, exercícios, ordem, volumes e intervalos alinhados aos parâmetros científicos mapeados.</div>
+      </div>
+      <div class="pri-card" style="background:#FAEEDA;border:0.5px solid #FAC775">
+        <div class="pri-label" style="color:#854F0B">🟡 Alta prioridade</div>
+        <div class="pri-title">Registro de treino em tempo real</div>
+        <div class="pri-desc">Log de séries, cargas e RIR por sessão. Histórico que alimenta o algoritmo de progressão e a detecção de platô.</div>
+      </div>
+      <div class="pri-card" style="background:#FAEEDA;border:0.5px solid #FAC775">
+        <div class="pri-label" style="color:#854F0B">🟡 Alta prioridade</div>
+        <div class="pri-title">Banco de alimentos com macros</div>
+        <div class="pri-desc">Base com pelo menos 2.000 itens (TACO/IBGE para BR + internacionais), com proteína, carboidrato, gordura e calorias por porção.</div>
+      </div>
+      <div class="pri-card" style="background:#FAEEDA;border:0.5px solid #FAC775">
+        <div class="pri-label" style="color:#854F0B">🟡 Alta prioridade</div>
+        <div class="pri-title">Diário alimentar e tracking de macros</div>
+        <div class="pri-desc">Interface para registrar refeições, calcular totais do dia e comparar com a meta. Diferencial: focar em proteína total e leucina por refeição, não só calorias.</div>
+      </div>
+      <div class="pri-card" style="background:#FAEEDA;border:0.5px solid #FAC775">
+        <div class="pri-label" style="color:#854F0B">🟡 Alta prioridade</div>
+        <div class="pri-title">Dashboard de progresso</div>
+        <div class="pri-desc">Gráficos de carga ao longo do tempo por exercício, volume semanal por músculo, medidas corporais e fotos comparativas.</div>
+      </div>
+      <div class="pri-card" style="background:#FAEEDA;border:0.5px solid #FAC775">
+        <div class="pri-label" style="color:#854F0B">🟡 Alta prioridade</div>
+        <div class="pri-title">Periodização automática</div>
+        <div class="pri-desc">Algoritmo de progressão dupla, ondulação de volume e deload inteligente baseado em fadiga percebida e estagnação de carga.</div>
+      </div>
+      <div class="pri-card" style="background:#E1F5EE;border:0.5px solid #5DCAA5">
+        <div class="pri-label" style="color:#0F6E56">🟢 Diferencial</div>
+        <div class="pri-title">Score de recuperação diário</div>
+        <div class="pri-desc">Check-in diário de sono, energia e dor muscular (escala simples) que ajusta automaticamente o volume e intensidade do treino do dia.</div>
+      </div>
+      <div class="pri-card" style="background:#E1F5EE;border:0.5px solid #5DCAA5">
+        <div class="pri-label" style="color:#0F6E56">🟢 Diferencial</div>
+        <div class="pri-title">Chat de IA especialista</div>
+        <div class="pri-desc">Consultor de hipertrofia com base científica embutida. Responde dúvidas de treino e nutrição com citação das evidências (os docs já formam o knowledge base).</div>
+      </div>
+      <div class="pri-card" style="background:#E1F5EE;border:0.5px solid #5DCAA5">
+        <div class="pri-label" style="color:#0F6E56">🟢 Diferencial</div>
+        <div class="pri-title">Plano alimentar gerado por IA</div>
+        <div class="pri-desc">A partir dos macros calculados e preferências, gera cardápio semanal com foco em densidade proteica, timing de leucina e praticidade.</div>
+      </div>
+      <div class="pri-card" style="background:#E1F5EE;border:0.5px solid #5DCAA5">
+        <div class="pri-label" style="color:#0F6E56">🟢 Diferencial</div>
+        <div class="pri-title">Detecção de platô + ajuste dinâmico</div>
+        <div class="pri-desc">Identifica ausência de progressão por 2–3 semanas e sugere mudança de variável (volume, exercício, método, deload) baseada nos estudos.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABA 3: BLUEPRINT DO APP -->
+  <div id="tab-blueprint" class="gap-section">
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 1.25rem">Arquitetura de módulos do app completo. Em verde = já documentado. Em laranja = parcial. Em vermelho = construir do zero.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+
+      <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);background:var(--color-background-primary);padding:14px">
+        <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-user-check" style="font-size:15px" aria-hidden="true"></i> Onboarding & Anamnese</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7">
+          <span class="badge badge-ok">✓ OK</span> Questionário de histórico e treino<br>
+          <span class="badge badge-ok">✓ OK</span> Diagnóstico de nível (iniciante → elite)<br>
+          <span class="badge badge-ok">✓ OK</span> Mapeamento de lesões e pontos fracos<br>
+          <span class="badge badge-par">~ Parcial</span> Coleta de objetivos e composição<br>
+          <span class="badge badge-gap">✗ Falta</span> Cálculo automático de TDEE e metas<br>
+          <span class="badge badge-gap">✗ Falta</span> Geração do plano inicial por IA
+        </div>
+      </div>
+
+      <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);background:var(--color-background-primary);padding:14px">
+        <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-barbell" style="font-size:15px" aria-hidden="true"></i> Módulo de Treino</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7">
+          <span class="badge badge-ok">✓ OK</span> Parâmetros científicos base (vol, freq, RIR)<br>
+          <span class="badge badge-ok">✓ OK</span> Matriz de prescrição por nível<br>
+          <span class="badge badge-ok">✓ OK</span> Template de split semanal<br>
+          <span class="badge badge-gap">✗ Falta</span> Banco de exercícios (~200 itens)<br>
+          <span class="badge badge-gap">✗ Falta</span> Gerador de treino por IA<br>
+          <span class="badge badge-gap">✗ Falta</span> Log de séries e cargas em tempo real<br>
+          <span class="badge badge-gap">✗ Falta</span> Progressão automática (dupla/ondulação)<br>
+          <span class="badge badge-gap">✗ Falta</span> Deload inteligente
+        </div>
+      </div>
+
+      <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);background:var(--color-background-primary);padding:14px">
+        <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-egg" style="font-size:15px" aria-hidden="true"></i> Módulo de Nutrição</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7">
+          <span class="badge badge-ok">✓ OK</span> Diretrizes proteicas com evidência<br>
+          <span class="badge badge-par">~ Parcial</span> Diagnóstico de ingestão atual<br>
+          <span class="badge badge-gap">✗ Falta</span> Cálculo de TMB / TDEE / macros<br>
+          <span class="badge badge-gap">✗ Falta</span> Banco de alimentos (TACO + intl)<br>
+          <span class="badge badge-gap">✗ Falta</span> Diário alimentar e tracking<br>
+          <span class="badge badge-gap">✗ Falta</span> Plano alimentar gerado por IA<br>
+          <span class="badge badge-gap">✗ Falta</span> Ajuste de macros por fase (bulk/cut)
+        </div>
+      </div>
+
+      <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);background:var(--color-background-primary);padding:14px">
+        <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-moon" style="font-size:15px" aria-hidden="true"></i> Recuperação & Check-in</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7">
+          <span class="badge badge-ok">✓ OK</span> Evidências de sono e deload<br>
+          <span class="badge badge-par">~ Parcial</span> Diagnóstico de qualidade de sono<br>
+          <span class="badge badge-gap">✗ Falta</span> Check-in diário de recuperação<br>
+          <span class="badge badge-gap">✗ Falta</span> Score de fadiga acumulada<br>
+          <span class="badge badge-gap">✗ Falta</span> Ajuste automático por score
+        </div>
+      </div>
+
+      <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);background:var(--color-background-primary);padding:14px">
+        <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-chart-line" style="font-size:15px" aria-hidden="true"></i> Analytics & Progresso</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7">
+          <span class="badge badge-par">~ Parcial</span> Ficha de pontuação por pilar<br>
+          <span class="badge badge-gap">✗ Falta</span> Gráfico de evolução de cargas<br>
+          <span class="badge badge-gap">✗ Falta</span> Volume por músculo (semana a semana)<br>
+          <span class="badge badge-gap">✗ Falta</span> Medidas corporais e fotos<br>
+          <span class="badge badge-gap">✗ Falta</span> Detecção de platô + sugestão de ajuste
+        </div>
+      </div>
+
+      <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);background:var(--color-background-primary);padding:14px">
+        <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-robot" style="font-size:15px" aria-hidden="true"></i> IA & Consultoria</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7">
+          <span class="badge badge-ok">✓ OK</span> Base de conhecimento científico<br>
+          <span class="badge badge-ok">✓ OK</span> Protocolo de anamnese estruturado<br>
+          <span class="badge badge-gap">✗ Falta</span> Chat de consultoria contextualizado<br>
+          <span class="badge badge-gap">✗ Falta</span> Geração de treino e dieta por IA<br>
+          <span class="badge badge-gap">✗ Falta</span> Ajuste dinâmico por feedbacks<br>
+          <span class="badge badge-gap">✗ Falta</span> Explicação científica de cada recomendação
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ABA 4: STACK & PRIORIDADE -->
+  <div id="tab-stack" class="gap-section">
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 1.25rem">O que construir em cada fase para chegar ao app completo, aproveitando o que já existe.</p>
+    <table class="stack-table">
+      <thead>
+        <tr>
+          <th>Fase</th>
+          <th>O que construir</th>
+          <th>Aproveita dos docs</th>
+          <th>Complexidade</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>MVP</b><br><span style="font-size:10px;color:var(--color-text-tertiary)">Semanas 1–4</span></td>
+          <td>Onboarding por anamnese → geração de treino por IA → log de sessão básico</td>
+          <td><span class="badge badge-ok">Doc 2</span> <span class="badge badge-ok">Doc 3</span></td>
+          <td><span class="badge badge-core">Média</span></td>
+        </tr>
+        <tr>
+          <td><b>V1</b><br><span style="font-size:10px;color:var(--color-text-tertiary)">Semanas 5–10</span></td>
+          <td>Banco de exercícios + progressão automática + cálculo de TDEE e macros + tracking proteico simplificado</td>
+          <td><span class="badge badge-ok">Doc 1</span> <span class="badge badge-ok">Doc 3</span></td>
+          <td><span class="badge badge-par">Alta</span></td>
+        </tr>
+        <tr>
+          <td><b>V2</b><br><span style="font-size:10px;color:var(--color-text-tertiary)">Semanas 11–18</span></td>
+          <td>Diário alimentar + banco de alimentos + plano alimentar por IA + dashboard de progresso</td>
+          <td><span class="badge badge-ok">Doc 1</span> <span class="badge badge-par">Doc 2</span></td>
+          <td><span class="badge badge-gap">Alta-Muito Alta</span></td>
+        </tr>
+        <tr>
+          <td><b>V3</b><br><span style="font-size:10px;color:var(--color-text-tertiary)">Semanas 19–28</span></td>
+          <td>Check-in de recuperação + deload inteligente + detecção de platô + chat de IA especialista</td>
+          <td><span class="badge badge-ok">Doc 1</span> <span class="badge badge-ok">Doc 2</span> <span class="badge badge-ok">Doc 3</span></td>
+          <td><span class="badge badge-gap">Muito Alta</span></td>
+        </tr>
+        <tr>
+          <td><b>V4+</b><br><span style="font-size:10px;color:var(--color-text-tertiary)">Além</span></td>
+          <td>Integração com wearables (HRV, sono), análise de fotos de progresso por IA, versão para personal trainers</td>
+          <td>Todos os docs</td>
+          <td><span class="badge badge-core">Especializada</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:1.25rem;padding:12px 14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);border-left:3px solid #1D9E75">
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Maior vantagem competitiva dos docs gerados</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6">
+        Os 3 documentos formam o <b>knowledge base científico</b> do app — algo que a maioria dos apps de treino não tem. Já existem as evidências estruturadas, o protocolo de anamnese validado e a lógica de prescrição por nível. Isso é a fundação que diferencia um app genérico de um <b>especialista em hipertrofia baseado em ciência</b>.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showGap(name) {
+  document.querySelectorAll('.gap-section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.gap-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('visible');
+  event.target.classList.add('active');
+}
+</script>

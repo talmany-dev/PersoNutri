@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/talmany.pereira/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/dca6223c-1644-452b-9a36-25e7dbc8b813/fb5d6bca-3174-40af-a4bf-7ee348ed0d12/skills/web-artifacts-builder/**)",
+      "Bash(bash scripts/init-artifact.sh personutri)",
+      "Bash(bash ../scripts/bundle-artifact.sh)",
+      "Bash(pnpm approve-builds *)",
+      "Bash(pnpm build *)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\talmany.pereira\\\\Documents\\\\App PersoNutri\\\\.claude\" && echo '{\"version\":\"0.0.1\",\"configurations\":[{\"name\":\"personutri\",\"runtimeExecutable\":\"npx\",\"runtimeArgs\":[\"serve\",\"-p\",\"3456\",\".\"],\"port\":3456}]}' > \"C:\\\\Users\\\\talmany.pereira\\\\Documents\\\\App PersoNutri\\\\.claude\\\\launch.json\")",
+      "Bash(npx create-next-app@latest personutri --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-turbopack)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(Start-Sleep -Seconds 5)",
+      "Bash(git add *)"
+    ]
+  }
+}
