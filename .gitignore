@@ -11,10 +11,12 @@ personutri/out/
 personutri/build/
 personutri/dist/
 
-# Environment
+# Environment (nunca versionar credenciais)
 .env
 .env.local
 .env.*.local
+personutri/.env.local
+personutri/.env
 
 # Logs
 npm-debug.log*
