@@ -4,19 +4,17 @@ node_modules/
 .pnp.js
 
 # Next.js
-personutri/.next/
-personutri/out/
+.next/
+out/
 
 # Build
-personutri/build/
-personutri/dist/
+build/
+dist/
 
 # Environment (nunca versionar credenciais)
 .env
 .env.local
 .env.*.local
-personutri/.env.local
-personutri/.env
 
 # Logs
 npm-debug.log*
