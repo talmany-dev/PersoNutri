@@ -14,7 +14,7 @@ export function BottomNav({ active }: { active: "dashboard" | "treino" | "nutric
 
   return (
     <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full bg-white flex items-end justify-around"
-      style={{ maxWidth: 390, borderTop: "0.5px solid #E5E5E5", paddingBottom: "env(safe-area-inset-bottom, 8px)", zIndex: 100 }}>
+      style={{ maxWidth: 390, borderTop: "0.5px solid #E5E5E5", paddingBottom: "max(env(safe-area-inset-bottom), 8px)", zIndex: 100 }}>
       {tabs.map(({ id, label, href, icon: Icon }) => {
         const isActive = active === id;
         return (
