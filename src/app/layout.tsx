@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "PersoNutri",
@@ -12,9 +15,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className="h-full">
-      <body className="min-h-full bg-surface">
-        <div className="mobile-frame">{children}</div>
+    <html lang="pt-BR" className={inter.className}>
+      <body style={{ background: "#111", minHeight: "100dvh" }}>
+        <div style={{ maxWidth: 390, margin: "0 auto", minHeight: "100dvh", background: "#F7F7F7" }}>
+          {children}
+        </div>
       </body>
     </html>
   );
