@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd personutri && npm install && npm run build",
+  "outputDirectory": "personutri/.next",
+  "devCommand": "cd personutri && npm run dev",
+  "installCommand": "cd personutri && npm install",
+  "framework": "nextjs"
+}
