@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import {
   calcTMB,
   calcTDEE,
@@ -65,6 +66,8 @@ export default function PerfilPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [result, setResult] = useState<ResultData | null>(null);
   const [step, setStep] = useState<"form" | "result">("form");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   function set(field: keyof FormData, value: string) {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -100,9 +103,11 @@ export default function PerfilPage() {
     return Object.keys(errs).length === 0;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
+    setSaving(true);
+    setSaveError(null);
 
     const peso   = parseFloat(form.peso_kg);
     const altura = parseFloat(form.altura_cm);
@@ -117,10 +122,54 @@ export default function PerfilPage() {
     const meta_calorica = calcMetaCalorica(tdee, obj);
     const macros        = calcMacros(peso, obj, meta_calorica);
 
-    // Persist to localStorage (will be replaced by Supabase in the connected implementation)
-    const profile = { ...form, tmb, tdee, meta_calorica, ...macros };
-    localStorage.setItem("personutri_profile", JSON.stringify(profile));
+    const supabase = createClient();
 
+    // 1. Criar conta no Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.senha,
+    });
+
+    if (authError || !authData.user) {
+      setSaveError(authError?.message === "User already registered"
+        ? "Este e-mail já está cadastrado. Faça login."
+        : (authError?.message ?? "Erro ao criar conta."));
+      setSaving(false);
+      return;
+    }
+
+    // 2. Salvar perfil na tabela users
+    const { error: dbError } = await supabase.from("users").insert({
+      id:                 authData.user.id,
+      nome:               form.nome,
+      email:              form.email,
+      peso_kg:            peso,
+      altura_cm:          altura,
+      idade,
+      sexo_biologico:     sexo,
+      percentual_gordura: pg ?? null,
+      objetivo:           obj,
+      nivel_atividade:    nivel,
+      tmb,
+      tdee,
+      meta_calorica,
+      proteina_g:         macros.proteina_g,
+      gordura_g:          macros.gordura_g,
+      carboidrato_g:      macros.carboidrato_g,
+    });
+
+    if (dbError) {
+      setSaveError("Conta criada, mas erro ao salvar perfil: " + dbError.message);
+      setSaving(false);
+      return;
+    }
+
+    // 3. Salvar no localStorage como cache local
+    localStorage.setItem("personutri_profile", JSON.stringify(
+      { ...form, tmb, tdee, meta_calorica, ...macros, user_id: authData.user.id }
+    ));
+
+    setSaving(false);
     setResult({ tmb, tdee, meta_calorica, ...macros });
     setStep("result");
   }
@@ -237,14 +286,21 @@ export default function PerfilPage() {
           {errors.nivel_atividade && <ErrorMsg msg={errors.nivel_atividade} />}
         </Section>
 
-        <button type="submit"
+        {saveError && (
+          <div className="px-4 py-3 rounded-xl text-sm font-medium" style={{ background: "#FEE2E2", color: "#991B1B" }}>
+            {saveError}
+          </div>
+        )}
+
+        <button type="submit" disabled={saving}
           style={{ background: "#1A56A0" }}
-          className="w-full text-white font-bold py-4 rounded-xl text-base mt-auto active:opacity-80 transition-opacity">
-          Calcular minhas metas →
+          className="w-full text-white font-bold py-4 rounded-xl text-base mt-auto active:opacity-80 transition-opacity disabled:opacity-60">
+          {saving ? "Criando conta…" : "Calcular minhas metas →"}
         </button>
 
         <p className="text-center text-xs text-gray-400 pb-4">
-          Já tem conta? <span style={{ color: "#1A56A0" }} className="font-medium">Entrar</span>
+          Já tem conta?{" "}
+          <a href="/login" style={{ color: "#1A56A0" }} className="font-medium">Entrar</a>
         </p>
       </form>
     </div>

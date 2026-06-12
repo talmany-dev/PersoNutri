@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 /* ─── Types ───────────────────────────────────────────────────────────────── */
 interface ItemDiario {
@@ -35,8 +36,8 @@ const REFEICOES: { id: Refeicao; label: string; icon: string; horario: string }[
   { id: "jantar",      label: "Jantar",        icon: "🌙", horario: "19h–21h"},
 ];
 
-// Metas do perfil (em produção viriam do localStorage/Supabase)
-const METAS = { calorias: 3037, proteina_g: 230, carboidrato_g: 345, gordura_g: 82 };
+// Metas default — sobrescritas pelo perfil em runtime
+const METAS_DEFAULT = { calorias: 3037, proteina_g: 230, carboidrato_g: 345, gordura_g: 82 };
 
 // Mock data inicial
 const INITIAL_DIARIO: Record<Refeicao, ItemDiario[]> = {
@@ -82,9 +83,83 @@ const CAT_ICONS: Record<string, string> = {
 
 /* ─── Page ────────────────────────────────────────────────────────────────── */
 export default function DiarioPage() {
+  const hoje = new Date().toISOString().split("T")[0];
+
   const [diario, setDiario] = useState<Record<Refeicao, ItemDiario[]>>(INITIAL_DIARIO);
   const [expanded, setExpanded] = useState<Set<Refeicao>>(new Set(["cafe_manha", "almoco"]));
   const [modal, setModal] = useState<Refeicao | null>(null);
+  const [bancoAlimentos, setBancoAlimentos] = useState<AlimentoBanco[]>(BANCO_ALIMENTOS);
+  const [metas, setMetas] = useState(METAS_DEFAULT);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Carregar dados do Supabase ao montar
+  useEffect(() => {
+    async function init() {
+      const supabase = createClient();
+
+      // 1. Obter usuário logado
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      setUserId(user.id);
+
+      // 2. Carregar metas do perfil
+      const { data: perfil } = await supabase
+        .from("users")
+        .select("meta_calorica,proteina_g,carboidrato_g,gordura_g")
+        .eq("id", user.id)
+        .single();
+      if (perfil) {
+        setMetas({
+          calorias:     perfil.meta_calorica,
+          proteina_g:   perfil.proteina_g,
+          carboidrato_g:perfil.carboidrato_g,
+          gordura_g:    perfil.gordura_g,
+        });
+      }
+
+      // 3. Carregar banco de alimentos do Supabase
+      const { data: alimentos } = await supabase
+        .from("alimentos")
+        .select("id,nome,categoria,calorias_100g,proteina_100g,carboidrato_100g,gordura_100g,porcao_padrao_g")
+        .is("deleted_at", null)
+        .order("nome");
+      if (alimentos?.length) setBancoAlimentos(alimentos as AlimentoBanco[]);
+
+      // 4. Carregar entradas de hoje
+      const { data: entradas } = await supabase
+        .from("diario_alimentar")
+        .select("id,refeicao,quantidade_g,calorias,proteina_g,carboidrato_g,gordura_g,alimentos(nome)")
+        .eq("user_id", user.id)
+        .eq("data", hoje)
+        .is("deleted_at", null);
+
+      if (entradas?.length) {
+        const novosDiario: Record<Refeicao, ItemDiario[]> = {
+          cafe_manha: [], lanche_manha: [], almoco: [], lanche_tarde: [], jantar: [],
+        };
+        entradas.forEach((e: {
+          id: string; refeicao: string; quantidade_g: number;
+          calorias: number; proteina_g: number; carboidrato_g: number; gordura_g: number;
+          alimentos: { nome: string } | null;
+        }) => {
+          const ref = e.refeicao as Refeicao;
+          if (novosDiario[ref] !== undefined) {
+            novosDiario[ref].push({
+              id: e.id,
+              nome: e.alimentos?.nome ?? "—",
+              quantidade_g: e.quantidade_g,
+              calorias: e.calorias,
+              proteina_g: e.proteina_g,
+              carboidrato_g: e.carboidrato_g,
+              gordura_g: e.gordura_g,
+            });
+          }
+        });
+        setDiario(novosDiario);
+      }
+    }
+    init();
+  }, [hoje]);
 
   // Totais do dia
   const totais = useMemo(() => {
@@ -105,29 +180,54 @@ export default function DiarioPage() {
     });
   }
 
-  function removeItem(refeicao: Refeicao, id: string) {
+  async function removeItem(refeicao: Refeicao, id: string) {
+    // Atualização optimista
     setDiario(prev => ({ ...prev, [refeicao]: prev[refeicao].filter(i => i.id !== id) }));
+    // Soft delete no Supabase
+    if (userId) {
+      const supabase = createClient();
+      await supabase.from("diario_alimentar")
+        .update({ deleted_at: new Date().toISOString() })
+        .eq("id", id);
+    }
   }
 
-  function addItem(refeicao: Refeicao, alimento: AlimentoBanco, quantidade_g: number) {
+  async function addItem(refeicao: Refeicao, alimento: AlimentoBanco, quantidade_g: number) {
     const fator = quantidade_g / 100;
+    const calorias      = Math.round(alimento.calorias_100g    * fator);
+    const proteina_g    = Math.round(alimento.proteina_100g    * fator * 10) / 10;
+    const carboidrato_g = Math.round(alimento.carboidrato_100g * fator * 10) / 10;
+    const gordura_g     = Math.round(alimento.gordura_100g     * fator * 10) / 10;
+
+    let itemId = `local-${Date.now()}`;
+
+    if (userId) {
+      const supabase = createClient();
+      const { data } = await supabase.from("diario_alimentar").insert({
+        user_id:       userId,
+        alimento_id:   alimento.id,
+        data:          hoje,
+        refeicao,
+        quantidade_g,
+        calorias,
+        proteina_g,
+        carboidrato_g,
+        gordura_g,
+      }).select("id").single();
+      if (data?.id) itemId = data.id;
+    }
+
     const item: ItemDiario = {
-      id: `new-${Date.now()}`,
-      nome: alimento.nome,
-      quantidade_g,
-      calorias:      Math.round(alimento.calorias_100g      * fator),
-      proteina_g:    Math.round(alimento.proteina_100g      * fator * 10) / 10,
-      carboidrato_g: Math.round(alimento.carboidrato_100g   * fator * 10) / 10,
-      gordura_g:     Math.round(alimento.gordura_100g       * fator * 10) / 10,
+      id: itemId, nome: alimento.nome, quantidade_g,
+      calorias, proteina_g, carboidrato_g, gordura_g,
     };
     setDiario(prev => ({ ...prev, [refeicao]: [...prev[refeicao], item] }));
     setModal(null);
-    // Ensure the refeicao is expanded
     setExpanded(prev => new Set([...prev, refeicao]));
   }
 
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "short", day: "numeric", month: "short" });
-  const proteina_deficit = METAS.proteina_g - totais.proteina_g;
+  const proteina_deficit = metas.proteina_g - totais.proteina_g;
 
   return (
     <div className="flex flex-col min-h-dvh bg-surface pb-20">
@@ -158,15 +258,15 @@ export default function DiarioPage() {
           <MacroCard
             label="Calorias"
             atual={totais.calorias}
-            meta={METAS.calorias}
+            meta={metas.calorias}
             unit="kcal"
             color="#1A56A0"
             big
           />
           <div className="flex flex-col gap-3">
-            <MacroMiniCard label="Proteína"     atual={totais.proteina_g}    meta={METAS.proteina_g}    unit="g" color="#1A56A0" />
-            <MacroMiniCard label="Carboidratos" atual={totais.carboidrato_g} meta={METAS.carboidrato_g} unit="g" color="#1D9E75" />
-            <MacroMiniCard label="Gorduras"     atual={totais.gordura_g}     meta={METAS.gordura_g}     unit="g" color="#D85A30" />
+            <MacroMiniCard label="Proteína"     atual={totais.proteina_g}    meta={metas.proteina_g}    unit="g" color="#1A56A0" />
+            <MacroMiniCard label="Carboidratos" atual={totais.carboidrato_g} meta={metas.carboidrato_g} unit="g" color="#1D9E75" />
+            <MacroMiniCard label="Gorduras"     atual={totais.gordura_g}     meta={metas.gordura_g}     unit="g" color="#D85A30" />
           </div>
         </div>
 
@@ -273,7 +373,7 @@ export default function DiarioPage() {
       {modal && (
         <BuscaAlimentoModal
           refeicao={modal}
-          banco={BANCO_ALIMENTOS}
+          banco={bancoAlimentos}
           onAdd={(alimento, qtd) => addItem(modal, alimento, qtd)}
           onClose={() => setModal(null)}
         />

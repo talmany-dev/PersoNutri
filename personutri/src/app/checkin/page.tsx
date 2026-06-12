@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 interface CheckinForm {
   horas_sono:     number;
@@ -98,17 +99,34 @@ export default function CheckinPage() {
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
   const todayCap = today.charAt(0).toUpperCase() + today.slice(1);
 
-  function handleSave() {
-    const checkin = {
-      ...form,
-      score_recuperacao: score,
-      data: new Date().toISOString().split("T")[0],
-    };
-    // Persist to localStorage (Supabase upsert when connected)
+  async function handleSave() {
+    const hoje = new Date().toISOString().split("T")[0];
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      await supabase.from("checkins").upsert(
+        {
+          user_id:           user.id,
+          data:              hoje,
+          qualidade_sono:    form.qualidade_sono,
+          energia:           form.energia,
+          dor_muscular:      form.dor_muscular,
+          horas_sono:        form.horas_sono,
+          peso_kg:           form.peso_kg ? parseFloat(form.peso_kg) : null,
+          notas:             form.notas || null,
+          score_recuperacao: score,
+        },
+        { onConflict: "user_id,data" }
+      );
+    }
+
+    // Cache local como fallback
     const existing = JSON.parse(localStorage.getItem("personutri_checkins") || "[]");
-    const hoje = checkin.data;
     const filtrado = existing.filter((c: { data: string }) => c.data !== hoje);
-    localStorage.setItem("personutri_checkins", JSON.stringify([checkin, ...filtrado]));
+    localStorage.setItem("personutri_checkins", JSON.stringify([
+      { ...form, score_recuperacao: score, data: hoje }, ...filtrado
+    ]));
     setSaved(true);
   }
 
