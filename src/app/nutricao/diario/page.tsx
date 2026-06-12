@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { BottomNav } from "@/components/ui";
 
 /* ─── Types ───────────────────────────────────────────────────────────────── */
 interface ItemDiario {
@@ -354,23 +355,7 @@ export default function DiarioPage() {
         })}
       </div>
 
-      {/* Bottom Nav */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-white border-t border-border flex z-40">
-        {[
-          { href: "/dashboard", label: "Dashboard", icon: "⊞" },
-          { href: "/treino",    label: "Treino",     icon: "🏋️" },
-          { href: "/nutricao/diario", label: "Nutrição", icon: "🥗", active: true },
-          { href: "/progresso", label: "Progresso",  icon: "📈" },
-          { href: "/ia",        label: "IA",         icon: "🤖" },
-        ].map(item => (
-          <a key={item.href} href={item.href}
-            className="flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium"
-            style={{ color: item.active ? "#1A56A0" : "#9CA3AF" }}>
-            <span className="text-lg leading-none">{item.icon}</span>
-            {item.label}
-          </a>
-        ))}
-      </nav>
+      <BottomNav active="nutricao" />
 
       {/* Modal busca de alimento */}
       {modal && (
