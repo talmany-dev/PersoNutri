@@ -140,13 +140,16 @@ export default function DiarioPage() {
         entradas.forEach((e: {
           id: string; refeicao: string; quantidade_g: number;
           calorias: number; proteina_g: number; carboidrato_g: number; gordura_g: number;
-          alimentos: { nome: string } | null;
+          alimentos: { nome: string } | { nome: string }[] | null;
         }) => {
           const ref = e.refeicao as Refeicao;
+          const alimNome = Array.isArray(e.alimentos)
+            ? e.alimentos[0]?.nome ?? "—"
+            : e.alimentos?.nome ?? "—";
           if (novosDiario[ref] !== undefined) {
             novosDiario[ref].push({
               id: e.id,
-              nome: e.alimentos?.nome ?? "—",
+              nome: alimNome,
               quantidade_g: e.quantidade_g,
               calorias: e.calorias,
               proteina_g: e.proteina_g,
