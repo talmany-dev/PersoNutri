@@ -1,6 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const PUBLIC_ROUTES = ["/", "/login", "/onboarding/perfil", "/onboarding/treino"];
+const PROTECTED_ROUTES = ["/dashboard", "/treino", "/nutricao", "/progresso", "/checkin", "/ia"];
+
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -21,7 +24,23 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+  const path = request.nextUrl.pathname;
+
+  // Usuário logado tentando acessar tela pública → vai pro dashboard
+  if (user && (path === "/" || path === "/login")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  // Usuário não logado tentando acessar rota protegida → volta pra home
+  const isProtected = PROTECTED_ROUTES.some(r => path.startsWith(r));
+  if (!user && isProtected) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }
