@@ -421,23 +421,23 @@ function BuscaAlimentoModal({ refeicao, banco, onAdd, onClose }: {
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
       {/* Sheet */}
-      <div className="relative w-full bg-white rounded-t-2xl flex flex-col max-h-[85dvh]">
+      <div className="relative w-full bg-white rounded-t-2xl flex flex-col max-h-[93dvh]">
         {/* Handle */}
-        <div className="flex justify-center pt-3 pb-1">
+        <div className="flex justify-center pt-3 pb-2">
           <div className="w-10 h-1 rounded-full bg-gray-200" />
         </div>
 
-        <div className="px-5 pb-3 border-b border-border">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-text">Adicionar a {refLabel}</h3>
-            <button onClick={onClose} className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-muted">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <div className="px-5 pb-4 border-b border-border">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-text">Adicionar a {refLabel}</h3>
+            <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-muted">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M1 1l10 10M11 1L1 11" strokeLinecap="round" />
               </svg>
             </button>
           </div>
-          <div className="mt-3 flex items-center gap-2 px-3 py-2.5 bg-gray-50 rounded-xl border border-border">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2">
+          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-2xl border border-border">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2">
               <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" strokeLinecap="round" />
             </svg>
             <input
@@ -446,33 +446,47 @@ function BuscaAlimentoModal({ refeicao, banco, onAdd, onClose }: {
               placeholder="Buscar alimento…"
               value={query}
               onChange={e => { setQuery(e.target.value); setSelected(null); }}
-              className="flex-1 bg-transparent text-sm outline-none text-text placeholder:text-muted"
+              className="flex-1 bg-transparent text-base outline-none text-text placeholder:text-muted"
             />
-            {query && <button onClick={() => { setQuery(""); setSelected(null); }} className="text-muted text-xs">✕</button>}
+            {query && (
+              <button onClick={() => { setQuery(""); setSelected(null); }}
+                className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-muted text-xs">✕</button>
+            )}
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto">
           {!selected && (
-            <div className="flex flex-col divide-y divide-gray-50">
-              {filtrado.map(alimento => (
+            <div className="flex flex-col">
+              {filtrado.map((alimento, idx) => (
                 <button key={alimento.id}
                   onClick={() => { setSelected(alimento); setQuantidade(String(alimento.porcao_padrao_g)); }}
-                  className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-left transition-colors">
-                  <span className="text-xl">{CAT_ICONS[alimento.categoria] ?? "🍽️"}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-text truncate">{alimento.nome}</p>
-                    <p className="text-xs text-muted">
-                      {alimento.calorias_100g} kcal · {alimento.proteina_100g}g P · {alimento.carboidrato_100g}g C · por 100g
-                    </p>
+                  className={`flex items-center gap-4 px-5 py-4 text-left active:bg-gray-50 transition-colors ${idx < filtrado.length - 1 ? "border-b border-gray-100" : ""}`}>
+                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl"
+                    style={{ background: "#F3F4F6" }}>
+                    {CAT_ICONS[alimento.categoria] ?? "🍽️"}
                   </div>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-text leading-snug">{alimento.nome}</p>
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: "#EFF6FF", color: "#1A56A0" }}>
+                        {alimento.calorias_100g} kcal
+                      </span>
+                      <span className="text-xs text-muted">{alimento.proteina_100g}g P</span>
+                      <span className="text-xs text-muted">{alimento.carboidrato_100g}g C</span>
+                      <span className="text-xs text-muted">por 100g</span>
+                    </div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" className="flex-shrink-0">
                     <path d="M9 18l6-6-6-6" />
                   </svg>
                 </button>
               ))}
               {filtrado.length === 0 && (
-                <p className="text-center text-sm text-muted py-8">Nenhum alimento encontrado</p>
+                <div className="flex flex-col items-center gap-2 py-12">
+                  <span className="text-3xl">🔍</span>
+                  <p className="text-sm text-muted">Nenhum alimento encontrado</p>
+                </div>
               )}
             </div>
           )}
