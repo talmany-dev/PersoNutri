@@ -1,16 +1,35 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { BottomNav, Card, MetricCard, AlertCard, PrimaryButton, OutlineButton, ProgressBar, CircularProgress } from "@/components/ui";
 
 export default function DashboardPage() {
+  const [nome, setNome] = useState<string | null>(null);
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const todayCap = today.charAt(0).toUpperCase() + today.slice(1);
+
+  useEffect(() => {
+    async function fetchUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from("users").select("nome").eq("id", user.id).single();
+      if (data?.nome) setNome(data.nome.split(" ")[0]); // primeiro nome apenas
+    }
+    fetchUser();
+  }, []);
+
+  const hora = new Date().getHours();
+  const saudacao = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
 
   return (
     <div className="min-h-dvh pb-20" style={{ background: "#F7F7F7", maxWidth: 390, margin: "0 auto" }}>
       {/* Greeting */}
       <div className="px-5 pt-6 pb-1">
-        <h1 className="text-xl font-bold" style={{ color: "#1A1A1A" }}>Bom dia, Rafael 👋</h1>
+        <h1 className="text-xl font-bold" style={{ color: "#1A1A1A" }}>
+          {saudacao}{nome ? `, ${nome}` : ""} 👋
+        </h1>
         <p className="text-xs mt-1" style={{ color: "#666" }}>{todayCap}</p>
       </div>
 
