@@ -25,14 +25,7 @@ interface SerieRegistradaLocal extends SerieRegistrada {
 
 type ViewSessao = "ativa" | "rest" | "progressao" | "concluida";
 
-/* ─── Mock Data ───────────────────────────────────────────────────────────── */
-const EXERCICIOS_MOCK: ExercicioSessao[] = [
-  { id: "e1", nome: "Supino Reto com Barra",     grupo_muscular: "Peito",   padrao_movimento: "Empurrar Horizontal", series: 4, reps_min: 8,  reps_max: 12, rir_alvo: 2, tempo_descanso_s: 120, carga_sugerida: 80 },
-  { id: "e2", nome: "Supino Inclinado Halteres", grupo_muscular: "Peito",   padrao_movimento: "Empurrar Horizontal", series: 3, reps_min: 10, reps_max: 15, rir_alvo: 2, tempo_descanso_s: 90,  carga_sugerida: 32 },
-  { id: "e3", nome: "Crossover no Cabo",         grupo_muscular: "Peito",   padrao_movimento: "Isolamento",          series: 3, reps_min: 12, reps_max: 15, rir_alvo: 1, tempo_descanso_s: 60,  carga_sugerida: 15 },
-  { id: "e4", nome: "Desenvolvimento com Barra", grupo_muscular: "Ombros",  padrao_movimento: "Empurrar Vertical",   series: 3, reps_min: 8,  reps_max: 12, rir_alvo: 2, tempo_descanso_s: 120, carga_sugerida: 50 },
-  { id: "e5", nome: "Tríceps Corda",             grupo_muscular: "Tríceps", padrao_movimento: "Isolamento",          series: 3, reps_min: 12, reps_max: 15, rir_alvo: 1, tempo_descanso_s: 60,  carga_sugerida: 22 },
-];
+const EXERCICIOS_MOCK: ExercicioSessao[] = [];
 
 /* ─── Page ────────────────────────────────────────────────────────────────── */
 export default function SessaoPage() {
@@ -45,9 +38,9 @@ export default function SessaoPage() {
   const [view, setView] = useState<ViewSessao>("ativa");
 
   // Form inputs
-  const [carga, setCarga] = useState(EXERCICIOS_MOCK[0].carga_sugerida);
-  const [reps, setReps] = useState(EXERCICIOS_MOCK[0].reps_max);
-  const [rir, setRir] = useState(EXERCICIOS_MOCK[0].rir_alvo);
+  const [carga, setCarga] = useState(0);
+  const [reps, setReps]   = useState(10);
+  const [rir, setRir]     = useState(2);
 
   // Timers
   const [sessaoSecs, setSessaoSecs] = useState(0);
@@ -139,6 +132,23 @@ export default function SessaoPage() {
   }
 
   // ── Views ────────────────────────────────────────────────────────────────
+
+  if (exercicios.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-dvh gap-4 px-6" style={{ background: "#F7F7F7" }}>
+        <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl" style={{ background: "rgba(26,86,160,0.08)" }}>🏋️</div>
+        <div className="text-center">
+          <p className="text-base font-bold" style={{ color: "#1A1A1A" }}>Plano de exercícios em breve</p>
+          <p className="text-sm mt-1" style={{ color: "#666" }}>Os exercícios personalizados para sua sessão estarão disponíveis após a geração do plano.</p>
+        </div>
+        <button onClick={() => router.push("/treino")}
+          className="px-6 py-3 rounded-xl text-sm font-semibold text-white"
+          style={{ background: "#1A56A0", border: "none", cursor: "pointer" }}>
+          Voltar ao Treino
+        </button>
+      </div>
+    );
+  }
 
   if (view === "concluida") {
     return <SessaoConcluida duracao={fmtTime(sessaoSecs)} exercicios={exercicios} seriesLog={seriesLog} onVoltar={() => router.push("/treino")} />;

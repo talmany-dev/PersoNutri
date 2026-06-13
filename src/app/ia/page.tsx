@@ -9,26 +9,15 @@ interface Message {
   sources?: string[];
 }
 
-const INITIAL: Message[] = [
-  {
-    role: "ai",
-    text: "Olá! Sou o consultor IA do PersoNutri, baseado em evidências científicas. Posso te ajudar com dúvidas sobre treino, nutrição, recuperação e periodização. O que você quer saber?",
-  },
-  {
-    role: "user",
-    text: "Por que não estou progredindo no supino?",
-  },
-  {
-    role: "ai",
-    text: "A estagnação no supino geralmente indica fadiga acumulada ou falta de sobrecarga progressiva estruturada. As causas mais comuns são: volume excessivo sem deload, RIR muito baixo cronicamente (Schoenfeld et al., 2019), e deficit calórico acentuado que limita síntese proteica. Recomendo 1 semana de deload com 40–50% do volume e reavaliação da progressão de carga.",
-    sources: ["Schoenfeld et al., 2019", "Krieger, 2010"],
-  },
-];
+const GREETING: Message = {
+  role: "ai",
+  text: "Olá! Sou o consultor IA do PersoNutri, baseado em evidências científicas. Posso te ajudar com dúvidas sobre treino, nutrição, recuperação e periodização. O que você quer saber?",
+};
 
 export default function IAPage() {
-  const [messages, setMessages] = useState<Message[]>(INITIAL);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([GREETING]);
+  const [input, setInput]       = useState("");
+  const [loading, setLoading]   = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,18 +30,19 @@ export default function IAPage() {
     setInput("");
     setMessages(prev => [...prev, { role: "user", text }]);
     setLoading(true);
-    // Simulated response — replace with real API call later
+
+    // Placeholder até integração com API real
     setTimeout(() => {
       setMessages(prev => [
         ...prev,
         {
           role: "ai",
-          text: "Com base no seu perfil e histórico de treino, a recomendação é ajustar o volume semanal e garantir pelo menos 1,8–2,2g de proteína por kg de peso corporal. Pequenos ajustes consistentes geram melhores resultados que mudanças drásticas.",
-          sources: ["Helms et al., 2014"],
+          text: "Boa pergunta! Com base no seu histórico e perfil, a recomendação é garantir consistência no volume semanal e progressão de carga. Para uma resposta personalizada, a integração com IA em tempo real estará disponível em breve.",
+          sources: ["Schoenfeld et al., 2017"],
         },
       ]);
       setLoading(false);
-    }, 1200);
+    }, 1000);
   }
 
   return (
@@ -60,7 +50,7 @@ export default function IAPage() {
       <ScreenHeader title="Consultor IA" subtitle="Baseado em evidências" />
 
       {/* Messages */}
-      <div className="flex-1 px-4 py-2 flex flex-col gap-3 overflow-y-auto">
+      <div className="flex-1 px-4 py-2 flex flex-col gap-3 overflow-y-auto" style={{ paddingBottom: 80 }}>
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             {msg.role === "ai" ? (
@@ -69,15 +59,12 @@ export default function IAPage() {
                 <p className="text-sm leading-relaxed" style={{ color: "#1A1A1A" }}>{msg.text}</p>
                 {msg.sources && (
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {msg.sources.map(s => (
-                      <Badge key={s} text={s} color="#1D9E75" />
-                    ))}
+                    {msg.sources.map(s => <Badge key={s} text={s} color="#1D9E75" />)}
                   </div>
                 )}
               </div>
             ) : (
-              <div className="max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-3"
-                style={{ background: "#1A56A0" }}>
+              <div className="max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-3" style={{ background: "#1A56A0" }}>
                 <p className="text-sm leading-relaxed text-white">{msg.text}</p>
               </div>
             )}
@@ -86,12 +73,11 @@ export default function IAPage() {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="rounded-2xl rounded-tl-sm px-4 py-3"
-              style={{ background: "#fff", border: "0.5px solid #E5E5E5" }}>
+            <div className="rounded-2xl rounded-tl-sm px-4 py-3" style={{ background: "#fff", border: "0.5px solid #E5E5E5" }}>
               <div className="flex gap-1 items-center h-5">
-                {[0, 1, 2].map(i => (
+                {[0,1,2].map(i => (
                   <div key={i} className="w-2 h-2 rounded-full animate-bounce"
-                    style={{ background: "#999", animationDelay: `${i * 0.15}s` }} />
+                    style={{ background: "#999", animationDelay: `${i*0.15}s` }} />
                 ))}
               </div>
             </div>
@@ -100,13 +86,12 @@ export default function IAPage() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full px-4 py-2"
-        style={{ maxWidth: 390, background: "#F7F7F7", borderTop: "0.5px solid #E5E5E5" }}>
+      {/* Input fixo acima do BottomNav */}
+      <div className="fixed left-1/2 -translate-x-1/2 w-full px-4 py-2"
+        style={{ maxWidth: 390, bottom: "calc(56px + env(safe-area-inset-bottom, 0px))", background: "#F7F7F7", borderTop: "0.5px solid #E5E5E5" }}>
         <div className="flex gap-2 items-center">
           <input
-            type="text"
-            placeholder="Digite sua dúvida…"
+            type="text" placeholder="Digite sua dúvida…"
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && handleSend()}
