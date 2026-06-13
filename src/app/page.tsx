@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -16,14 +16,38 @@ function PNLogo({ size = 48 }: { size?: number }) {
   );
 }
 
+function Splash() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-dvh gap-5"
+      style={{ background: "#fff", maxWidth: 390, margin: "0 auto" }}>
+      <PNLogo size={64} />
+      <div className="flex gap-1.5">
+        {[0, 1, 2].map(i => (
+          <div key={i} className="w-1.5 h-1.5 rounded-full animate-pulse"
+            style={{ background: "#1A56A0", animationDelay: `${i * 0.2}s` }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const router = useRouter();
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     createClient().auth.getSession().then(({ data: { session } }) => {
-      if (session) router.replace("/dashboard");
+      if (session) {
+        router.replace("/dashboard");
+        // mantém checking=true para não piscar os botões antes do redirect
+      } else {
+        setChecking(false);
+      }
     });
   }, [router]);
+
+  // Enquanto verifica (ou está redirecionando), mostra só o splash
+  if (checking) return <Splash />;
 
   const pills = [
     { label: "Plano personalizado", color: "#1A56A0", bg: "rgba(26,86,160,0.08)",
@@ -36,7 +60,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-dvh bg-white" style={{ maxWidth: 390, margin: "0 auto" }}>
-      {/* Hero */}
       <div className="flex-1 flex flex-col items-center justify-center px-8 pt-16">
         <div className="mb-8">
           <PNLogo size={72} />
@@ -60,7 +83,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* CTA */}
       <div className="px-6 pb-10 pt-6 flex flex-col gap-3">
         <button
           onClick={() => router.push("/onboarding/perfil")}
