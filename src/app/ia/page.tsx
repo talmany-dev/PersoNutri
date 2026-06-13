@@ -1,14 +1,18 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { BottomNav, ScreenHeader, Badge } from "@/components/ui";
 
 interface Message {
+  id?: string;
   role: "user" | "ai";
   text: string;
   sources?: string[];
 }
+
+// Quantas mensagens recentes enviar como contexto para a IA
+const CONTEXT_WINDOW = 6;
 
 const GREETING: Message = {
   role: "ai",
@@ -16,64 +20,119 @@ const GREETING: Message = {
 };
 
 export default function IAPage() {
-  const [messages, setMessages] = useState<Message[]>([GREETING]);
-  const [input, setInput]       = useState("");
-  const [loading, setLoading]   = useState(false);
-  const [perfil, setPerfil]     = useState<Record<string, unknown> | null>(null);
+  const [messages, setMessages]   = useState<Message[]>([GREETING]);
+  const [input, setInput]         = useState("");
+  const [loading, setLoading]     = useState(false);
+  const [histLoading, setHistLoading] = useState(true);
+  const [perfil, setPerfil]       = useState<Record<string, unknown> | null>(null);
+  const [userId, setUserId]       = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Carrega perfil do usuário para dar contexto à IA
-  useEffect(() => {
-    async function loadPerfil() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase
-        .from("users")
-        .select("nome,idade,peso_kg,altura_cm,objetivo,nivel_atividade,proteina_g,meta_calorica,divisao_preferida,estilo_alimentar,restricoes_alimentares")
-        .eq("id", user.id)
-        .single();
-      if (data) setPerfil(data);
+  // Carrega perfil e histórico do usuário
+  const loadUserData = useCallback(async () => {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setHistLoading(false); return; }
+    setUserId(user.id);
+
+    // Perfil para contexto da IA
+    const { data: perfilData } = await supabase
+      .from("users")
+      .select("nome,idade,peso_kg,altura_cm,objetivo,nivel_atividade,proteina_g,meta_calorica,divisao_preferida,estilo_alimentar,restricoes_alimentares")
+      .eq("id", user.id)
+      .single();
+    if (perfilData) setPerfil(perfilData);
+
+    // Histórico de mensagens (últimas 60, ordem cronológica)
+    const { data: hist } = await supabase
+      .from("chat_mensagens")
+      .select("id,role,content,sources")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true })
+      .limit(60);
+
+    if (hist?.length) {
+      const histMsgs: Message[] = hist.map(m => ({
+        id:      m.id,
+        role:    m.role as "user" | "ai",
+        text:    m.content,
+        sources: m.sources ?? [],
+      }));
+      setMessages([GREETING, ...histMsgs]);
     }
-    loadPerfil();
+
+    setHistLoading(false);
   }, []);
+
+  useEffect(() => { loadUserData(); }, [loadUserData]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  async function saveMessage(msg: Omit<Message, "id">, uid: string): Promise<string | null> {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("chat_mensagens")
+      .insert({
+        user_id: uid,
+        role:    msg.role,
+        content: msg.text,
+        sources: msg.sources ?? [],
+      })
+      .select("id")
+      .single();
+    return data?.id ?? null;
+  }
 
   async function handleSend() {
     const text = input.trim();
     if (!text || loading) return;
     setInput("");
 
-    const newMessages: Message[] = [...messages, { role: "user", text }];
-    setMessages(newMessages);
+    const userMsg: Message = { role: "user", text };
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setLoading(true);
+
+    // Salva mensagem do usuário no Supabase (sem bloquear o fluxo)
+    let userMsgId: string | null = null;
+    if (userId) {
+      userMsgId = await saveMessage(userMsg, userId);
+      if (userMsgId) {
+        setMessages(prev => prev.map((m, i) =>
+          i === prev.length - 1 ? { ...m, id: userMsgId! } : m
+        ));
+      }
+    }
+
+    // Contexto para a IA: apenas as últimas CONTEXT_WINDOW mensagens reais (sem greeting)
+    const histReal = updatedMessages.filter(m => m !== GREETING);
+    const contextMessages = histReal.slice(-CONTEXT_WINDOW);
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: newMessages.filter(m => m.role !== "ai" || m !== GREETING),
-          perfil,
-        }),
+        body: JSON.stringify({ messages: contextMessages, perfil }),
       });
 
       const data = await res.json();
 
-      if (data.error) {
-        setMessages(prev => [...prev, {
-          role: "ai",
-          text: "Desculpe, houve um erro ao processar sua pergunta. Tente novamente.",
-        }]);
-      } else {
-        setMessages(prev => [...prev, {
-          role: "ai",
-          text: data.text,
-          sources: data.sources?.length ? data.sources : undefined,
-        }]);
+      const aiMsg: Message = data.error
+        ? { role: "ai", text: "Desculpe, houve um erro ao processar sua pergunta. Tente novamente." }
+        : { role: "ai", text: data.text, sources: data.sources?.length ? data.sources : undefined };
+
+      setMessages(prev => [...prev, aiMsg]);
+
+      // Salva resposta da IA no Supabase
+      if (userId && !data.error) {
+        const aiMsgId = await saveMessage(aiMsg, userId);
+        if (aiMsgId) {
+          setMessages(prev => prev.map((m, i) =>
+            i === prev.length - 1 ? { ...m, id: aiMsgId } : m
+          ));
+        }
       }
     } catch {
       setMessages(prev => [...prev, {
@@ -85,14 +144,44 @@ export default function IAPage() {
     setLoading(false);
   }
 
+  async function clearHistory() {
+    if (!userId) return;
+    const supabase = createClient();
+    await supabase.from("chat_mensagens").delete().eq("user_id", userId);
+    setMessages([GREETING]);
+  }
+
   return (
     <div className="flex flex-col min-h-dvh pb-20" style={{ background: "#F7F7F7", maxWidth: 390, margin: "0 auto" }}>
-      <ScreenHeader title="Consultor IA" subtitle="Baseado em evidências" />
+      {/* Header com botão limpar */}
+      <div className="flex items-center justify-between px-5 pt-safe" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+        <ScreenHeader title="Consultor IA" subtitle="Baseado em evidências" />
+        {messages.length > 1 && (
+          <button
+            onClick={clearHistory}
+            className="text-xs px-3 py-1.5 rounded-xl flex-shrink-0"
+            style={{ background: "#F3F4F6", color: "#999", marginTop: 8 }}>
+            Limpar
+          </button>
+        )}
+      </div>
 
       {/* Messages */}
       <div className="flex-1 px-4 py-2 flex flex-col gap-3 overflow-y-auto" style={{ paddingBottom: 80 }}>
+
+        {histLoading && (
+          <div className="flex justify-center py-4">
+            <div className="flex gap-1.5">
+              {[0,1,2].map(i => (
+                <div key={i} className="w-1.5 h-1.5 rounded-full animate-pulse"
+                  style={{ background: "#CCC", animationDelay: `${i*0.2}s` }} />
+              ))}
+            </div>
+          </div>
+        )}
+
         {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+          <div key={msg.id ?? i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             {msg.role === "ai" ? (
               <div className="max-w-[85%] rounded-2xl rounded-tl-sm p-3.5 flex flex-col gap-2"
                 style={{ background: "#fff", border: "0.5px solid #E5E5E5" }}>
@@ -123,6 +212,16 @@ export default function IAPage() {
             </div>
           </div>
         )}
+
+        {/* Indicador sutil de janela de contexto */}
+        {messages.filter(m => m !== GREETING).length > CONTEXT_WINDOW && (
+          <div className="flex justify-center">
+            <span className="text-[11px] px-3 py-1 rounded-full" style={{ background: "#F0F0F0", color: "#BBB" }}>
+              IA usa as últimas {CONTEXT_WINDOW} mensagens como contexto
+            </span>
+          </div>
+        )}
+
         <div ref={bottomRef} />
       </div>
 
