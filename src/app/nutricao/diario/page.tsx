@@ -38,23 +38,10 @@ const REFEICOES: { id: Refeicao; label: string; icon: string; horario: string }[
 ];
 
 // Metas default — sobrescritas pelo perfil em runtime
-const METAS_DEFAULT = { calorias: 3037, proteina_g: 230, carboidrato_g: 345, gordura_g: 82 };
+const METAS_DEFAULT = { calorias: 2000, proteina_g: 150, carboidrato_g: 200, gordura_g: 67 };
 
-// Mock data inicial
-const INITIAL_DIARIO: Record<Refeicao, ItemDiario[]> = {
-  cafe_manha: [
-    { id: "i1", nome: "Ovos inteiros",        quantidade_g: 150, calorias: 214, proteina_g: 19.5, carboidrato_g: 0.9,  gordura_g: 14.2 },
-    { id: "i2", nome: "Whey protein (pó)",    quantidade_g: 30,  calorias: 120, proteina_g: 24.0, carboidrato_g: 2.4,  gordura_g: 1.5  },
-    { id: "i3", nome: "Aveia em flocos",       quantidade_g: 60,  calorias: 236, proteina_g: 8.3,  carboidrato_g: 39.9, gordura_g: 5.1  },
-  ],
-  lanche_manha: [],
-  almoco: [
-    { id: "i4", nome: "Frango grelhado (peito)", quantidade_g: 200, calorias: 318, proteina_g: 65.6, carboidrato_g: 0.0,  gordura_g: 6.4  },
-    { id: "i5", nome: "Arroz integral cozido",   quantidade_g: 180, calorias: 223, proteina_g: 4.7,  carboidrato_g: 46.4, gordura_g: 1.8  },
-    { id: "i6", nome: "Brócolis cozido",          quantidade_g: 100, calorias: 25,  proteina_g: 2.4,  carboidrato_g: 3.6,  gordura_g: 0.2  },
-  ],
-  lanche_tarde: [],
-  jantar: [],
+const DIARIO_VAZIO: Record<Refeicao, ItemDiario[]> = {
+  cafe_manha: [], lanche_manha: [], almoco: [], lanche_tarde: [], jantar: [],
 };
 
 // Mock banco de alimentos (subconjunto do seed SQL)
@@ -86,7 +73,7 @@ const CAT_ICONS: Record<string, string> = {
 export default function DiarioPage() {
   const hoje = new Date().toISOString().split("T")[0];
 
-  const [diario, setDiario] = useState<Record<Refeicao, ItemDiario[]>>(INITIAL_DIARIO);
+  const [diario, setDiario] = useState<Record<Refeicao, ItemDiario[]>>(DIARIO_VAZIO);
   const [expanded, setExpanded] = useState<Set<Refeicao>>(new Set(["cafe_manha", "almoco"]));
   const [modal, setModal] = useState<Refeicao | null>(null);
   const [bancoAlimentos, setBancoAlimentos] = useState<AlimentoBanco[]>(BANCO_ALIMENTOS);
@@ -134,33 +121,28 @@ export default function DiarioPage() {
         .eq("data", hoje)
         .is("deleted_at", null);
 
-      if (entradas?.length) {
-        const novosDiario: Record<Refeicao, ItemDiario[]> = {
-          cafe_manha: [], lanche_manha: [], almoco: [], lanche_tarde: [], jantar: [],
-        };
-        entradas.forEach((e: {
-          id: string; refeicao: string; quantidade_g: number;
-          calorias: number; proteina_g: number; carboidrato_g: number; gordura_g: number;
-          alimentos: { nome: string } | { nome: string }[] | null;
-        }) => {
-          const ref = e.refeicao as Refeicao;
-          const alimNome = Array.isArray(e.alimentos)
-            ? e.alimentos[0]?.nome ?? "—"
-            : e.alimentos?.nome ?? "—";
-          if (novosDiario[ref] !== undefined) {
-            novosDiario[ref].push({
-              id: e.id,
-              nome: alimNome,
-              quantidade_g: e.quantidade_g,
-              calorias: e.calorias,
-              proteina_g: e.proteina_g,
-              carboidrato_g: e.carboidrato_g,
-              gordura_g: e.gordura_g,
-            });
-          }
-        });
-        setDiario(novosDiario);
-      }
+      // Sempre reseta para o que está no banco (vazio se não houver entradas)
+      const novosDiario: Record<Refeicao, ItemDiario[]> = {
+        cafe_manha: [], lanche_manha: [], almoco: [], lanche_tarde: [], jantar: [],
+      };
+      (entradas ?? []).forEach((e: {
+        id: string; refeicao: string; quantidade_g: number;
+        calorias: number; proteina_g: number; carboidrato_g: number; gordura_g: number;
+        alimentos: { nome: string } | { nome: string }[] | null;
+      }) => {
+        const ref = e.refeicao as Refeicao;
+        const alimNome = Array.isArray(e.alimentos)
+          ? e.alimentos[0]?.nome ?? "—"
+          : e.alimentos?.nome ?? "—";
+        if (novosDiario[ref] !== undefined) {
+          novosDiario[ref].push({
+            id: e.id, nome: alimNome,
+            quantidade_g: e.quantidade_g, calorias: e.calorias,
+            proteina_g: e.proteina_g, carboidrato_g: e.carboidrato_g, gordura_g: e.gordura_g,
+          });
+        }
+      });
+      setDiario(novosDiario);
     }
     init();
   }, [hoje]);
