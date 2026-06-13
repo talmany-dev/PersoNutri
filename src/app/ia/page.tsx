@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { BottomNav, ScreenHeader, Badge } from "@/components/ui";
 
 interface Message {
@@ -18,31 +19,70 @@ export default function IAPage() {
   const [messages, setMessages] = useState<Message[]>([GREETING]);
   const [input, setInput]       = useState("");
   const [loading, setLoading]   = useState(false);
+  const [perfil, setPerfil]     = useState<Record<string, unknown> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Carrega perfil do usuário para dar contexto à IA
+  useEffect(() => {
+    async function loadPerfil() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("users")
+        .select("nome,idade,peso_kg,altura_cm,objetivo,nivel_atividade,proteina_g,meta_calorica,divisao_preferida,estilo_alimentar,restricoes_alimentares")
+        .eq("id", user.id)
+        .single();
+      if (data) setPerfil(data);
+    }
+    loadPerfil();
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  function handleSend() {
+  async function handleSend() {
     const text = input.trim();
     if (!text || loading) return;
     setInput("");
-    setMessages(prev => [...prev, { role: "user", text }]);
+
+    const newMessages: Message[] = [...messages, { role: "user", text }];
+    setMessages(newMessages);
     setLoading(true);
 
-    // Placeholder até integração com API real
-    setTimeout(() => {
-      setMessages(prev => [
-        ...prev,
-        {
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: newMessages.filter(m => m.role !== "ai" || m !== GREETING),
+          perfil,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        setMessages(prev => [...prev, {
           role: "ai",
-          text: "Boa pergunta! Com base no seu histórico e perfil, a recomendação é garantir consistência no volume semanal e progressão de carga. Para uma resposta personalizada, a integração com IA em tempo real estará disponível em breve.",
-          sources: ["Schoenfeld et al., 2017"],
-        },
-      ]);
-      setLoading(false);
-    }, 1000);
+          text: "Desculpe, houve um erro ao processar sua pergunta. Tente novamente.",
+        }]);
+      } else {
+        setMessages(prev => [...prev, {
+          role: "ai",
+          text: data.text,
+          sources: data.sources?.length ? data.sources : undefined,
+        }]);
+      }
+    } catch {
+      setMessages(prev => [...prev, {
+        role: "ai",
+        text: "Sem conexão com o servidor. Verifique sua internet e tente novamente.",
+      }]);
+    }
+
+    setLoading(false);
   }
 
   return (
@@ -57,7 +97,7 @@ export default function IAPage() {
               <div className="max-w-[85%] rounded-2xl rounded-tl-sm p-3.5 flex flex-col gap-2"
                 style={{ background: "#fff", border: "0.5px solid #E5E5E5" }}>
                 <p className="text-sm leading-relaxed" style={{ color: "#1A1A1A" }}>{msg.text}</p>
-                {msg.sources && (
+                {msg.sources && msg.sources.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1">
                     {msg.sources.map(s => <Badge key={s} text={s} color="#1D9E75" />)}
                   </div>
@@ -86,7 +126,7 @@ export default function IAPage() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input fixo acima do BottomNav */}
+      {/* Input */}
       <div className="fixed left-1/2 -translate-x-1/2 w-full px-4 py-2"
         style={{ maxWidth: 390, bottom: "calc(56px + env(safe-area-inset-bottom, 0px))", background: "#F7F7F7", borderTop: "0.5px solid #E5E5E5" }}>
         <div className="flex gap-2 items-center">
