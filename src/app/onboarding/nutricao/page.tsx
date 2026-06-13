@@ -118,7 +118,7 @@ export default function OnboardingNutricaoPage() {
 
     setSaving(false);
     setSaved(true);
-    setTimeout(() => router.push("/dashboard"), 1500);
+    router.push("/onboarding/recomendacoes");
   }
 
   if (saved) {
@@ -126,8 +126,8 @@ export default function OnboardingNutricaoPage() {
       <div className="flex flex-col items-center justify-center min-h-dvh gap-5 px-6" style={{ background: "#F7F7F7" }}>
         <div className="w-20 h-20 rounded-full flex items-center justify-center text-4xl" style={{ background: "#ECFDF5" }}>✅</div>
         <div className="text-center">
-          <h2 className="text-xl font-bold" style={{ color: "#1A1A1A" }}>Perfil nutricional salvo!</h2>
-          <p className="text-sm mt-1" style={{ color: "#666" }}>Personalizando suas recomendações…</p>
+          <h2 className="text-xl font-bold" style={{ color: "#1A1A1A" }}>Perfil salvo!</h2>
+          <p className="text-sm mt-1" style={{ color: "#666" }}>Preparando sua análise…</p>
         </div>
         <div className="flex gap-1.5">
           {[0,1,2].map(i => (
