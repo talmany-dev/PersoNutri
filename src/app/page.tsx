@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 function PNLogo({ size = 48 }: { size?: number }) {
   return (
@@ -16,6 +18,12 @@ function PNLogo({ size = 48 }: { size?: number }) {
 
 export default function Home() {
   const router = useRouter();
+
+  useEffect(() => {
+    createClient().auth.getSession().then(({ data: { session } }) => {
+      if (session) router.replace("/dashboard");
+    });
+  }, [router]);
 
   const pills = [
     { label: "Plano personalizado", color: "#1A56A0", bg: "rgba(26,86,160,0.08)",
