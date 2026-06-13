@@ -114,7 +114,7 @@ export default function AnamneseTreinoPage() {
       user_id: existing.id ?? null,
     }));
     setSubmitted(true);
-    setTimeout(() => router.push("/treino"), 1800);
+    setTimeout(() => router.push("/onboarding/nutricao"), 1800);
   }
 
   if (submitted) {
@@ -144,7 +144,7 @@ export default function AnamneseTreinoPage() {
         </button>
         <h1 className="text-white text-2xl font-bold leading-tight">Anamnese de treino</h1>
         <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.7)" }}>Personalize seu plano de hipertrofia</p>
-        <ProgressDots current={1} total={2} />
+        <ProgressDots current={1} total={3} />
       </header>
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col flex-1 px-5 py-6 gap-7">

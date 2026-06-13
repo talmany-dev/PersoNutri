@@ -188,7 +188,7 @@ export default function PerfilPage() {
         </div>
         <h1 className="text-white text-2xl font-bold leading-tight">Crie seu perfil</h1>
         <p className="text-white/70 text-sm mt-1">Vamos calcular suas metas individuais</p>
-        <ProgressDots current={0} total={2} />
+        <ProgressDots current={0} total={3} />
       </header>
 
       {/* Form */}
