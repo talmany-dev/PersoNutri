@@ -34,8 +34,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" className={inter.className}>
-      <body style={{ background: "#111", minHeight: "100dvh" }}>
-        <div style={{ maxWidth: 390, margin: "0 auto", minHeight: "100dvh", background: "#F7F7F7" }}>
+      <body style={{ background: "#F7F7F7", minHeight: "100dvh" }}>
+        <div style={{ maxWidth: 390, margin: "0 auto", minHeight: "100dvh", background: "#F7F7F7", paddingTop: "env(safe-area-inset-top)" }}>
           {children}
         </div>
         <script dangerouslySetInnerHTML={{ __html: `
